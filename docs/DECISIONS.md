@@ -7,10 +7,10 @@
 - Attendance is lesson-based with academic-equivalent counting (4 technical = 6 academic).
 
 ## Architecture
-- Backend: Django + DRF + PostgreSQL.
-- Async jobs: Celery + Redis.
-- Real-time: Django Channels + Redis.
-- Frontend: Next.js (App Router) + TypeScript.
+- Backend: Django 5 + Django REST Framework + PostgreSQL 15
+- Async jobs: Celery + Redis
+- Real-time: Django Channels + Redis
+- Frontend: Next.js 14 (App Router) + TypeScript
 
 ## Non-Functional
 - API-first design to support future mobile apps.
