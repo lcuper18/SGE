@@ -12,12 +12,13 @@
 ## Permission Matrix (MVP)
 Legend: R = read, W = write, S = self-only
 
-| Area | Admin | Coordinator | Teacher | Student | Parent |
+| Endpoint Area | Admin | Coordinator | Teacher | Student | Parent |
 | --- | --- | --- | --- | --- | --- |
-| Students | RW | RW | R | S | R (children) |
-| Attendance | RW | RW | RW (assigned groups) | R (self) | R (children) |
-| Academic structure | RW | RW | R | R | R |
-| Reports (basic) | R | R | R (assigned groups) | R (self) | R (children) |
+| /students | RW | RW | R | S | R (children) |
+| /academic-years, /terms, /grades, /groups | RW | RW | R | R | R |
+| /attendance | RW | RW | RW (assigned groups) | R (self) | R (children) |
+| /time-slots | RW | RW | R | R | R |
+| /reports/attendance_summary | R | R | R (assigned groups) | R (self) | R (children) |
 
 ## Object Rules (MVP)
 - Teacher can act only on assigned groups.
