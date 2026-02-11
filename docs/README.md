@@ -14,6 +14,7 @@ Read in order:
 9. MOBILE.md - Mobile readiness requirements
 10. QA.md - Testing strategy and acceptance
 11. DEPLOYMENT.md - Environments, CI/CD, ops
+12. ROADMAP.md - Future stages and growth
 
 Notes:
 - No coding should start before this set is approved.

@@ -25,6 +25,9 @@ Advanced features after MVP approval:
 - Notifications system (in-app and email)
 - Advanced reporting and exports
 
+## Roadmap
+See ROADMAP.md for future stages such as multi-school support, early-warning analytics, AI modules, and mobile apps.
+
 ## Out of Scope (for now)
 - Multi-tenant architecture
 - Android/iOS app development
