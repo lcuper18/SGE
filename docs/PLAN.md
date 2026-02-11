@@ -5,7 +5,7 @@ Build a single-tenant school management system for one private school, with an A
 
 ## MVP Scope (Phase 1)
 Core features required for first delivery:
-- Authentication and roles (admin, coordinator, teacher, student, parent)
+- Authentication and roles (Admin, Coordinator, Teacher, Student, Parent)
 - Students management (profile, status, guardians, documents)
 - Academic structure (academic year, terms, grades, groups)
 - Attendance per lesson (12 academic-equivalent lessons/day) with detailed statuses and daily reports
