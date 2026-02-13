@@ -1,8 +1,34 @@
 # Roadmap and Future Stages
 
-This document outlines future stages beyond the MVP for growth, multi-school support, and AI capabilities.
+**Commercial Strategy:** Private Schools (MVP) → Multi-School Platform → MEP Contract  
+**Business Model:** B2B SaaS - See [BUSINESS_MODEL.md](BUSINESS_MODEL.md)  
+**Timeline:** 2026-2028
+
+This document outlines future stages beyond the MVP for growth, multi-school support, and AI capabilities, aligned with the go-to-market strategy for private schools and the Ministry of Public Education (MEP).
+
+---
+
+## COMMERCIAL CONTEXT
+
+**Phase 1 (MVP - 2026):** Single-tenant SaaS for private schools (200-2000 students)  
+- Target: 20-30 Costa Rican private schools by end of Year 1
+- Revenue Goal: $72K-108K ARR
+- Timeline: Feb-Aug 2026 development, Sep 2026 launch
+
+**Phase 2 (Scale - 2027-2028):** Multi-tenant platform for 50-100+ schools  
+- Target: Private schools + MEP pilot
+- Revenue Goal: $270K-360K ARR + MEP contract potential ($1-2.5M)
+- Timeline: Multi-tenant by Q2 2027, MEP RFP in 2028
+
+See [BUSINESS_MODEL.md](BUSINESS_MODEL.md) for detailed commercial strategy and revenue projections.
+
+---
 
 ## Stage A: Multi-School (Ministry or Networks)
+**Timeline:** Q1-Q2 2027 (after 6-12 months with private schools)  
+**Business Driver:** Required for MEP contract, enables scaling to 50-100+ schools  
+**Revenue Impact:** Unlocks MEP opportunity ($1-2.5M contract potential)
+
 Goal: Support multiple schools in a single platform with centralized governance.
 
 Scope:
@@ -11,12 +37,19 @@ Scope:
 - Aggregated reporting across schools
 - School-level branding and configuration per tenant
 - Data import tools for legacy systems
+- White-label capabilities for school groups
 
 Outcomes:
-- Enables ministry-level deployments
+- Enables ministry-level deployments (MEP)
 - Supports public education networks
+- Reduces hosting costs per school (economy of scale)
+- Centralized updates and maintenance
 
 ## Stage B: Early-Warning Analytics (Dropout Prevention)
+**Timeline:** Q3-Q4 2027 (before MEP RFP)  
+**Business Driver:** Address MEP's #1 priority (reduce dropout rates)  
+**Competitive Advantage:** Differentiation for government contract bids
+
 Goal: Provide early warning signals for student dropout risks.
 
 Signals (examples):
@@ -29,10 +62,13 @@ Actions:
 - Alerts to coordinators and counselors
 - Suggested intervention plans
 - Follow-up tracking and outcomes
+- Impact measurement (did intervention work?)
 
 MEP Focus:
 - Prioritize transparent criteria and explainable indicators
 - Produce reports aligned to MEP requirements
+- Demonstrate ROI: reduced dropout rates in pilot schools
+- Privacy compliance (student data protection)
 
 ## Stage C: AI Modules
 Goal: Enhance communication and insights without replacing human judgment.
