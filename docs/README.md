@@ -17,7 +17,14 @@ Read in order:
 12. ROADMAP.md - Future stages and growth
 13. TRACKING.md - Project tracking strategy and workflow
 14. BACKLOG.md - Complete product backlog with epics, stories, and tasks
+15. MCP_SETUP.md - Model Context Protocol server configuration
 
 Notes:
 - No coding should start before this set is approved.
 - User guides are intentionally excluded for now.
+
+## Development Tools
+
+- GitHub CLI (gh): v2.86.0
+- GitHub Project: https://github.com/users/lcuper18/projects/2
+- MCP Server (GitHub): Configured and ready
