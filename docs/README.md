@@ -1,7 +1,16 @@
 # SGE Documentation Index
 
 This folder is the single source of truth for planning and approvals.
-Read in order:
+
+## ⚠️ APPROVAL STATUS
+
+**Current Status:** 🟡 PENDING STAKEHOLDER APPROVAL  
+**Readiness:** 85% complete - see [READINESS_AUDIT.md](READINESS_AUDIT.md)  
+**Action Required:** Complete approval process before development starts
+
+---
+
+## Documentation Reading Order
 
 1. PLAN.md - Scope, MVP, phase 2, success criteria
 2. DECISIONS.md - Key architecture and product decisions
@@ -19,6 +28,7 @@ Read in order:
 14. BACKLOG.md - Complete product backlog with epics, stories, and tasks
 15. MCP_SETUP.md - Model Context Protocol server configuration
 16. SPRINT_01.md - Sprint 1 planning (Feb 13-27, 2026)
+17. **READINESS_AUDIT.md - Pre-development approval checklist and gaps** ⚠️
 
 Notes:
 - No coding should start before this set is approved.
