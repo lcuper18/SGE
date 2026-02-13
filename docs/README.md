@@ -15,6 +15,8 @@ Read in order:
 10. QA.md - Testing strategy and acceptance
 11. DEPLOYMENT.md - Environments, CI/CD, ops
 12. ROADMAP.md - Future stages and growth
+13. TRACKING.md - Project tracking strategy and workflow
+14. BACKLOG.md - Complete product backlog with epics, stories, and tasks
 
 Notes:
 - No coding should start before this set is approved.
