@@ -18,6 +18,7 @@ Read in order:
 13. TRACKING.md - Project tracking strategy and workflow
 14. BACKLOG.md - Complete product backlog with epics, stories, and tasks
 15. MCP_SETUP.md - Model Context Protocol server configuration
+16. SPRINT_01.md - Sprint 1 planning (Feb 13-27, 2026)
 
 Notes:
 - No coding should start before this set is approved.
