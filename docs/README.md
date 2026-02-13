@@ -5,13 +5,18 @@ This folder is the single source of truth for planning and approvals.
 ## ⚠️ PROJECT STATUS
 
 **Type:** Personal SaaS Initiative (Not client project)  
-**Current Phase:** 🟡 MARKET VALIDATION (Feb 13-14, 2026)  
+**Current Phase:** � DÍA 1 - VALIDACIÓN EXPRESS (Feb 13, 2026)  
 **Business Model:** B2B SaaS for private schools → MEP  
-**Timeline:** 1-2 days validation → 6 months MVP development
+**Timeline:** 2 days validation → 6 months MVP development
 
-**Next Action:** Complete quick validation (3-5 calls) - See [VALIDATION_EXPRESS.md](VALIDATION_EXPRESS.md)  
-**Decision By:** End of February 14, 2026  
+**🎯 ACCIÓN INMEDIATA:** Leer [DIA_1_EJECUCION.md](DIA_1_EJECUCION.md) y ejecutar hoy  
+**Decision By:** Mañana viernes Feb 14, 2026  
 **If Approved:** Sprint 1 starts Feb 17-19, 2026
+
+**Quick Start:**
+1. Lee [BUSINESS_MODEL.md](BUSINESS_MODEL.md) (20 min)
+2. Ejecuta [DIA_1_EJECUCION.md](DIA_1_EJECUCION.md) (1-2 horas hoy)
+3. Mañana: [DIA_2_EJECUCION.md](DIA_2_EJECUCION.md) (3-4 horas)
 
 ---
 
@@ -41,18 +46,25 @@ This folder is the single source of truth for planning and approvals.
 17. MCP_SETUP.md - Model Context Protocol server configuration
 
 ### Approval & Validation (Solo Founder Process)
-18. **VALIDATION_EXPRESS.md - Quick validation guide (1-2 days)** 🚀
-19. **APPROVAL_SOLO.md - Solo founder decision checklist** ✅
-20. **READINESS_AUDIT.md - Pre-development audit (reference)** 📊
-21. ~~APPROVAL.md - Formal stakeholder process (archived)~~ 📁
-22. ~~VALIDATION.md - Full interview framework (archived)~~ 📁
-23. ~~APPROVAL_SCHEDULE.md - 4-day timeline (archived)~~ 📁
+18. **🚀 DIA_1_EJECUCION.md - EJECUTAR HOY (Jueves 13)** ⭐
+19. **DIA_2_EJECUCION.md - Mañana viernes (Calls + Decisión)** 📞
+20. **VALIDATION_EXPRESS.md - Context & overview (1-2 days)** 📋
+21. **APPROVAL_SOLO.md - Llenar después de calls** ✅
+22. **READINESS_AUDIT.md - Pre-development audit (reference)** 📊
+23. ~~APPROVAL.md - Formal stakeholder process (archived)~~ 📁
+24. ~~VALIDATION.md - Full interview framework (archived)~~ 📁
+25. ~~APPROVAL_SCHEDULE.md - 4-day timeline (archived)~~ 📁
+
+**EMPEZAR AQUÍ:**
+1. [BUSINESS_MODEL.md](BUSINESS_MODEL.md) - Leer primero
+2. [DIA_1_EJECUCION.md](DIA_1_EJECUCION.md) - Ejecutar HOY
+3. [DIA_2_EJECUCION.md](DIA_2_EJECUCION.md) - Ejecutar MAÑANA
 
 Notes:
 - This is a personal SaaS initiative targeting private schools and MEP
-- Streamlined validation process: 3-5 calls + self-assessment (not formal approval)
-- **START HERE:** [BUSINESS_MODEL.md](BUSINESS_MODEL.md) and [VALIDATION_EXPRESS.md](VALIDATION_EXPRESS.md)
-- No coding until validation complete (end of Feb 14, 2026)
+- Streamlined validation: 3-5 calls + self-assessment over 2 days
+- Decision by end of Friday Feb 14, 2026
+- No coding until validation complete
 
 ## Development Tools
 
