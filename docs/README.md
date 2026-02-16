@@ -71,3 +71,30 @@ Notes:
 - GitHub CLI (gh): v2.86.0
 - GitHub Project: https://github.com/users/lcuper18/projects/2
 - MCP Server (GitHub): Configured and ready
+
+---
+
+## 📦 Submódulos / Proyectos Paralelos
+
+### MVP Módulo de Calificaciones Offline
+
+**Estado:** En documentación (Feb 16, 2026)  
+**Tipo:** Aplicación de escritorio independiente (Electron + FastAPI + SQLite)  
+**Propósito:** Sistema offline para docentes gestionar asistencia y calificaciones con rúbricas detalladas
+
+**Documentación completa:** [/docs/mvp-grades/](mvp-grades/)
+
+**Documentos clave:**
+- [README.md](mvp-grades/README.md) - Overview y quick start
+- [ARCHITECTURE.md](mvp-grades/ARCHITECTURE.md) - Diseño técnico detallado
+- [DATABASE.md](mvp-grades/DATABASE.md) - Esquema SQLite (19 tablas)
+- [ROADMAP.md](mvp-grades/ROADMAP.md) - Plan de desarrollo (13 semanas)
+- [INTEGRATION.md](mvp-grades/INTEGRATION.md) - Estrategia de integración con SGE principal
+
+**Relación con SGE:**
+- Funciona independiente y offline
+- Arquitectura preparada para sincronización futura
+- Compatible con estructura de datos de SGE
+- Se integrará en Phase 2 del proyecto principal
+
+**Branch:** `feature/mvp-grades` (separado de `main`)
