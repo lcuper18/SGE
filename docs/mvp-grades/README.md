@@ -5,7 +5,7 @@
 
 ## 📋 Resumen Ejecutivo
 
-Sistema desktop independiente que permite a docentes gestionar asistencia y calificaciones con rúbricas configurables, evaluaciones detalladas por criterios, y generación de reportes oficiales. Diseñado para funcionar completamente offline con SQLite local, pero con arquitectura preparada para sincronización futura con el proyecto SGE principal.
+Sistema desktop independiente que permite a docentes gestionar asistencia y calificaciones con rúbricas configurables, evaluaciones detalladas por criterios, y generación de reportes oficiales. Diseñado para funcionar completamente offline con SQLCipher encriptado, pero con arquitectura preparada para sincronización futura con el proyecto SGE principal.
 
 ## 🎯 Objetivos del MVP
 
@@ -39,7 +39,7 @@ Sistema desktop independiente que permite a docentes gestionar asistencia y cali
 ### Stack Tecnológico
 - **Frontend**: Electron + React + TypeScript
 - **Backend**: Python 3.11+ con FastAPI
-- **Base de Datos**: SQLite 3
+- **Base de Datos**: SQLCipher (SQLite 3.40+ encriptado con AES-256)
 - **Reportes PDF**: WeasyPrint (Jinja2 templates)
 - **Reportes Excel**: openpyxl
 - **Empaquetado**: Electron Builder + PyInstaller
@@ -100,12 +100,15 @@ grades-mvp/
 - [README.md](README.md) - Este archivo (overview general)
 - [ARCHITECTURE.md](ARCHITECTURE.md) - Arquitectura técnica detallada
 - [DATABASE.md](DATABASE.md) - Esquema completo de SQLite
-- [API.md](API.md) - Documentación de endpoints FastAPI
-- [DEVELOPMENT.md](DEVELOPMENT.md) - Guía para desarrolladores
 - [ROADMAP.md](ROADMAP.md) - Plan de desarrollo por sprints
+- [SECURITY.md](SECURITY.md) - Guía completa de seguridad
 - [INTEGRATION.md](INTEGRATION.md) - Estrategia de integración con SGE
-- [USER_GUIDE.md](USER_GUIDE.md) - Manual de usuario final
-- [DEPLOYMENT.md](DEPLOYMENT.md) - Empaquetado y distribución
+- [TRACKING.md](TRACKING.md) - 📊 Tracking de progreso actual
+- [NEXT_SESSION.md](NEXT_SESSION.md) - 📅 Plan próxima sesión de trabajo
+- [API.md](API.md) - Documentación de endpoints FastAPI (pendiente)
+- [DEVELOPMENT.md](DEVELOPMENT.md) - Guía para desarrolladores (pendiente)
+- [USER_GUIDE.md](USER_GUIDE.md) - Manual de usuario final (pendiente)
+- [DEPLOYMENT.md](DEPLOYMENT.md) - Empaquetado y distribución (pendiente)
 
 ## 🚀 Quick Start
 
@@ -217,7 +220,7 @@ git push origin feature/mvp-grades
 | 6. Reportes | 2 semanas | Todos los PDFs/Excel |
 | 7. Testing + Polish | 1 semana | Bug fixes, UX improvements |
 | 8. Empaquetado | 1 semana | Builds, instaladores |
-| **Total** | **13 semanas** | **MVP funcional** |
+| **Total** | **15 semanas** | **MVP funcional con seguridad integral** |
 
 ## 📞 Contacto y Recursos
 
