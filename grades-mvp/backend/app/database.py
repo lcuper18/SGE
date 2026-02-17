@@ -120,12 +120,15 @@ def test_encryption():
         with engine.connect() as conn:
             result = conn.execute(text("PRAGMA cipher_version"))
             version = result.fetchone()
-            print(f"[Database] SQLCipher versión: {version[0] if version else 'Standard SQLite (NO ENCRIPTADO)'}")
             
-            # Verificar que key está activa
-            result = conn.execute(text("PRAGMA key"))
-            print(f"[Database] Encriptación: ACTIVA")
-            return True
+            if version and version[0]:
+                print(f"[Database] SQLCipher versión: {version[0]}")
+                print(f"[Database] ✅ Encriptación: ACTIVA")
+                return True
+            else:
+                print(f"[Database] ⚠️  SQLite estándar detectado (SIN ENCRIPTACIÓN)")
+                return False
     except Exception as e:
         print(f"[Database] Error verificando encriptación: {e}")
+        print(f"[Database] ⚠️  No se pudo confirmar encriptación")
         return False
