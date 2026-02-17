@@ -456,7 +456,14 @@ def create_access_token(data: dict):
 ```python
 from passlib.context import CryptContext
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Argon2id con parámetros seguros (OWASP recommendation)
+pwd_context = CryptContext(
+    schemes=["argon2"],
+    deprecated="auto",
+    argon2__memory_cost=65536,  # 64 MB
+    argon2__time_cost=3,        # 3 iterations
+    argon2__parallelism=1
+)
 
 def hash_password(password: str) -> str:
     return pwd_context.hash(password)
@@ -467,7 +474,7 @@ def verify_password(plain: str, hashed: str) -> bool:
 
 ### Protección de datos
 
-- **Encriptación en reposo**: SQLite DB puede ser encriptado con SQLCipher (opcional)
+- **Encriptación en reposo**: SQLCipher con AES-256 (obligatorio desde Sprint 0) - ver [SECURITY.md](SECURITY.md) para implementación completa
 - **Backups automáticos**: Copia diaria de `sge_grades.db` en carpeta Documents/SGE-Backups
 - **Validación de inputs**: Pydantic schemas previenen SQL injection
 - **CORS restrictivo**: Solo localhost en producción
