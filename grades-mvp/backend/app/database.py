@@ -8,6 +8,7 @@ from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy.pool import StaticPool
 import keyring
+from pysqlcipher3 import dbapi2 as sqlcipher_driver
 
 # Service name para keytar/keyring
 SERVICE_NAME = "sge-grades-mvp"
@@ -43,32 +44,29 @@ DB_DIR = os.path.expanduser("~/Documents/SGE-Grades")
 os.makedirs(DB_DIR, exist_ok=True)
 DB_PATH = os.path.join(DB_DIR, "sge_grades.db")
 
-# SQLCipher URL (mismo formato que SQLite)
+# SQLCipher URL
 DATABASE_URL = f"sqlite:///{DB_PATH}"
 
-# Engine con SQLCipher
+# Engine con SQLite
+# NOTA: SQLCipher requiere un dialecto personalizado para SQLAlchemy
+# Por ahora usamos SQLite est ándar, la encriptación real se implementará en Sprint 1
 engine = create_engine(
     DATABASE_URL,
     connect_args={
-        "check_same_thread": False,  # Para SQLite
+        "check_same_thread": False,
         "timeout": 30
     },
-    poolclass=StaticPool,  # Single-user app
-    echo=False  # True para debug
+    poolclass=StaticPool,
+    echo=False
 )
 
-# Configurar SQLCipher en cada conexión
+# Configurar pragmas de SQLite
 @event.listens_for(engine, "connect")
 def configure_sqlite_connection(dbapi_connection, connection_record):
     """
-    Configura SQLCipher y optimizaciones SQLite en cada conexión.
+    Configura optimizaciones SQLite en cada conexión.
     """
     cursor = dbapi_connection.cursor()
-    
-    # 🔒 Activar encriptación SQLCipher
-    cursor.execute(f"PRAGMA key = '{ENCRYPTION_KEY}'")
-    cursor.execute("PRAGMA cipher_page_size = 4096")
-    cursor.execute("PRAGMA kdf_iter = 64000")
     
     # Optimizaciones SQLite
     cursor.execute("PRAGMA journal_mode = WAL")
@@ -78,7 +76,6 @@ def configure_sqlite_connection(dbapi_connection, connection_record):
     cursor.execute("PRAGMA temp_store = MEMORY")
     
     cursor.close()
-    print(f"[Database] Conexión SQLCipher configurada: {DB_PATH}")
 
 # Session factory
 SessionLocal = sessionmaker(
