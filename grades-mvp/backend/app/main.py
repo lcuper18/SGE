@@ -11,6 +11,7 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 
 from app.database import init_db, test_encryption
+from app.routes import auth
 
 # Rate limiter
 limiter = Limiter(key_func=get_remote_address)
@@ -107,8 +108,13 @@ async def health_check():
         }
 
 
-# TODO: Import routers cuando estén creados
-# from app.routes import auth, setup, students, attendance, grades, reports
-# app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
+# ================== ROUTERS ==================
+
+# Authentication routes
+app.include_router(auth.router, prefix="/api")
+
+
+# TODO: Import additional routers cuando estén creados
+# from app.routes import setup, students, attendance, grades, reports
 # app.include_router(setup.router, prefix="/api/setup", tags=["Academic Setup"])
 # etc...
