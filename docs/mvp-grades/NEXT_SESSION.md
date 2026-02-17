@@ -1,342 +1,378 @@
 # Plan de Trabajo - Próxima Sesión
 
-**Fecha Objetivo**: 18-24 febrero 2026  
-**Sprint**: Sprint 0 (finalización) + Sprint 1 (inicio)  
-**Prioridad**: Completar fundamentos antes de features
+**Fecha**: 18 febrero 2026 en adelante  
+**Sprint**: Sprint 1 - Backend Core Features  
+**Branch**: `feature/mvp-grades` (continuar)  
+**Estado Anterior**: Sprint 0 completado al 100% ✅
 
 ---
 
-## 🎯 Objetivos Principales
+## 📊 Resumen Sprint 0 (COMPLETADO)
 
-### 1. Completar Sprint 0 (Prioridad CRÍTICA)
-**Tiempo estimado**: 2-3 horas
+✅ **9/9 tareas completadas**
+- Estructura base del proyecto (Electron + React + FastAPI)
+- SQLCipher evaluado (blocker documentado, usando SQLite)
+- 7 modelos de base de datos implementados
+- Sistema de autenticación completo (JWT + Argon2id)
+- Testing framework configurado (23+2 tests, 81.73% coverage)
+- Aplicación corriendo: Backend (8000) + Frontend (3000)
 
-#### A. Resolver SQLCipher en Linux
-**Problema**: `pysqlcipher3` no está funcionando (usando SQLite estándar)
-
-**Opciones**:
-
-**Opción A: Instalación Sistema** (Recomendado)
-```bash
-# 1. Instalar dependencias del sistema
-sudo apt install sqlcipher libsqlcipher-dev python3-dev
-
-# 2. Reinstalar pysqlcipher3 con compilación
-cd /home/lfallas/Workspace/SGE/grades-mvp/backend
-source venv/bin/activate
-pip uninstall pysqlcipher3
-pip install --no-binary :all: pysqlcipher3
-
-# 3. Verificar instalación
-python -c "from pysqlcipher3 import dbapi2; print('✅ SQLCipher OK')"
-```
-
-**Opción B: Usar sqlcipher3-binary** (Alternativa)
-```bash
-pip install sqlcipher3-binary
-# Cambiar imports en database.py
-```
-
-**Opción C: Docker** (Si A y B fallan)
-```dockerfile
-FROM python:3.11-slim
-RUN apt-get update && apt-get install -y sqlcipher libsqlcipher-dev
-# ...
-```
-
-**Validación**:
-- [ ] Test de encriptación real funcionando
-- [ ] DB creada en `~/Documents/SGE-Grades/sge_grades.db`
-- [ ] PRAGMA cipher_version retorna versión SQLCipher
+**Commits**: 6 commits incluyendo tracking update  
+**Branch**: `feature/mvp-grades` sincronizado con origin
 
 ---
 
-### 2. Crear Modelos de Base de Datos (Prioridad ALTA)
+## 🎯 Objetivos Sprint 1
+
+### 1. Backend API - Academic Structure (Prioridad CRÍTICA)
+**Tiempo estimado**: 4-5 horas
+
+#### A. Implementar CRUD para Academic Year
+**Archivo**: `backend/app/routes/academic_years.py`
+
+**Endpoints**:
+```python
+POST   /api/academic-years/          # Crear año académico
+GET    /api/academic-years/          # Listar años
+GET    /api/academic-years/{id}/     # Detalle
+PUT    /api/academic-years/{id}/     # Actualizar
+DELETE /api/academic-years/{id}/     # Eliminar
+```
+
+**Schemas** (`backend/app/schemas/academic.py`):
+- `AcademicYearCreate`: name, start_date, end_date, is_active
+- `AcademicYearUpdate`: Partial update
+- `AcademicYearResponse`: Full object con relationships
+
+**Tareas**:
+- [ ] Crear schemas/academic.py con validaciones Pydantic
+- [ ] Crear routes/academic_years.py con 5 endpoints
+- [ ] Implementar service layer (services/academic.py)
+- [ ] Validación: no períodos superpuestos
+- [ ] Tests: test_academic_years.py (mínimo 8 tests)
+
+#### B. Implementar CRUD para Periods
+**Archivo**: `backend/app/routes/periods.py`
+
+**Endpoints**:
+```python
+POST   /api/periods/                 # Crear periodo
+GET    /api/periods/                 # Listar (filter por academic_year_id)
+GET    /api/periods/{id}/            # Detalle
+PUT    /api/periods/{id}/            # Actualizar
+DELETE /api/periods/{id}/            # Eliminar
+```
+
+**Tareas**:
+- [ ] Agregar PeriodCreate/Update/Response a schemas
+- [ ] Crear routes/periods.py
+- [ ] Validar fechas dentro del academic year
+- [ ] Validar no overlap entre períodos del mismo año
+- [ ] Tests: test_periods.py (mínimo 8 tests)
+
+#### C. Implementar CRUD para Grades
+**Archivo**: `backend/app/routes/grades.py`
+
+**Endpoints**:
+```python
+POST   /api/grades/                  # Crear nivel
+GET    /api/grades/                  # Listar
+GET    /api/grades/{id}/             # Detalle
+PUT    /api/grades/{id}/             # Actualizar
+DELETE /api/grades/{id}/             # Eliminar (solo si no tiene grupos)
+```
+
+**Tareas**:
+- [ ] Agregar GradeCreate/Update/Response a schemas
+- [ ] Crear routes/grades.py
+- [ ] Validar level único (1-6)
+- [ ] Soft delete para niveles con grupos existentes
+- [ ] Tests: test_grades.py (mínimo 6 tests)
+
+---
+
+### 2. Backend API - Student Management (Prioridad ALTA)
 **Tiempo estimado**: 3-4 horas
 
-#### A. Implementar User Model con Argon2id
-**Archivo**: `backend/app/models/user.py`
+#### A. Implementar CRUD para Groups
+**Archivo**: `backend/app/routes/groups.py`
 
+**Endpoints**:
 ```python
-# backend/app/models/user.py
-from sqlalchemy import Column, Integer, String, Boolean, DateTime
-from sqlalchemy.sql import func
-from passlib.context import CryptContext
-from app.database import Base
-
-# Argon2id context (NO bcrypt)
-pwd_context = CryptContext(
-    schemes=["argon2"],
-    deprecated="auto",
-    argon2__memory_cost=65536,
-    argon2__time_cost=3,
-    argon2__parallelism=1
-)
-
-class User(Base):
-    __tablename__ = "users"
-    
-    id = Column(Integer, primary_key=True, index=True)
-    email = Column(String(255), unique=True, nullable=False, index=True)
-    password_hash = Column(String(255), nullable=False)
-    first_name = Column(String(100), nullable=False)
-    last_name = Column(String(100), nullable=False)
-    role = Column(String(20), nullable=False, default='teacher')
-    teacher_type = Column(String(20), nullable=True)
-    is_active = Column(Boolean, default=True, nullable=False)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-    
-    def set_password(self, password: str):
-        """Hash password con Argon2id"""
-        self.password_hash = pwd_context.hash(password)
-    
-    def verify_password(self, password: str) -> bool:
-        """Verificar password"""
-        return pwd_context.verify(password, self.password_hash)
-    
-    def __repr__(self):
-        return f"<User {self.email}>"
+POST   /api/groups/                  # Crear grupo
+GET    /api/groups/                  # Listar (filter grade_id, academic_year_id)
+GET    /api/groups/{id}/             # Detalle con students
+GET    /api/groups/{id}/students/    # Listar estudiantes del grupo
+PUT    /api/groups/{id}/             # Actualizar
+DELETE /api/groups/{id}/             # Eliminar
 ```
 
 **Tareas**:
-- [ ] Crear `models/user.py`
-- [ ] Agregar import en `models/__init__.py`
-- [ ] Probar hash/verify con Argon2id
-- [ ] Validar que bcrypt NO funciona
+- [ ] Agregar GroupCreate/Update/Response a schemas
+- [ ] Crear routes/groups.py
+- [ ] Endpoint de asignación de estudiantes
+- [ ] Validar capacidad máxima
+- [ ] Tests: test_groups.py (mínimo 10 tests)
 
-#### B. Crear Academic Structure Models
-**Archivo**: `backend/app/models/academic.py`
+#### B. Implementar CRUD para Students
+**Archivo**: `backend/app/routes/students.py`
 
+**Endpoints**:
 ```python
-# 5 tablas: AcademicYear, Period, Grade, Group, Subgroup
-# Según DATABASE.md líneas 81-230
+POST   /api/students/                # Crear estudiante
+GET    /api/students/                # Listar con paginación
+GET    /api/students/{id}/           # Detalle
+PUT    /api/students/{id}/           # Actualizar
+DELETE /api/students/{id}/           # Eliminar (soft delete)
+POST   /api/students/{id}/assign-group/  # Asignar a grupo
 ```
 
 **Tareas**:
-- [ ] Crear `models/academic.py`
-- [ ] Implementar 5 modelos SQLAlchemy
-- [ ] Agregar relationships
-- [ ] Validaciones (check constraints)
-
-#### C. Crear Student Model
-**Archivo**: `backend/app/models/student.py`
-
-```python
-# 1 tabla: Student
-# Según DATABASE.md líneas 231-267
-```
-
-**Tareas**:
-- [ ] Crear `models/student.py`
-- [ ] Relationships con Group/Subgroup
-- [ ] Index en student_id (único)
-
-#### D. Inicializar Base de Datos
-**Tareas**:
-- [ ] Ejecutar `init_db()` desde main.py startup
-- [ ] Verificar que 7 tablas se crean
-- [ ] Confirmar encriptación SQLCipher activa
+- [ ] Agregar StudentCreate/Update/Response a schemas
+- [ ] Crear routes/students.py
+- [ ] Implementar paginación (page, page_size)
+- [ ] Búsqueda por student_id, nombre
+- [ ] Validar student_id único
+- [ ] Tests: test_students.py (mínimo 12 tests)
 
 ---
 
-### 3. Implementar Autenticación (Prioridad ALTA)
-**Tiempo estimado**: 2-3 horas
+### 3. Testing & Quality (Prioridad MEDIA)
+**Tiempo estimado**: 2 horas
 
-#### A. Password Validator Service
-**Archivo**: `backend/app/services/password_validator.py`
-
-```python
-# Validaciones según ROADMAP.md Sprint 0
-# - Min 12 caracteres
-# - Mayúscula, número, símbolo
-# - Lista de passwords comunes rechazados
-```
+#### A. Aumentar Cobertura de Tests
+**Objetivo**: >85% coverage
 
 **Tareas**:
-- [ ] Crear password_validator.py
-- [ ] Lista top 10K passwords comunes
-- [ ] Tests de validación
+- [ ] Tests para todos los nuevos endpoints
+- [ ] Tests de validación (edge cases)
+- [ ] Tests de permisos (unauthorized access)
+- [ ] Test de paginación y filtros
+- [ ] Ejecutar: `pytest --cov=app --cov-report=html`
 
-#### B. Rate Limiter Class
-**Archivo**: `backend/app/services/rate_limiter.py`
+#### B. Integration Tests
+**Archivo**: `backend/tests/test_integration.py`
 
-```python
-# Tabla login_attempts en DB
-# Max 5 intentos / 15 minutos
-# Lockout automático
-```
-
-**Tareas**:
-- [ ] Crear rate_limiter.py
-- [ ] Modelo LoginAttempt
-- [ ] Cleanup automático (TTL)
-
-#### C. Auth Routes
-**Archivo**: `backend/app/routes/auth.py`
-
-```python
-# POST /auth/initial-setup - Primera configuración
-# POST /auth/login - Login con rate limit
-# POST /auth/logout - Logout
-# GET /auth/me - Usuario actual
-```
+**Escenarios**:
+1. Crear año académico → período → grado → grupo → estudiante
+2. Asignar estudiantes a grupos
+3. Validar capacidad máxima de grupos
+4. Eliminar año académico (cascade)
 
 **Tareas**:
-- [ ] Crear routes/auth.py
-- [ ] JWT token generation
-- [ ] Middleware autenticación
-- [ ] Dependency get_current_user
+- [ ] Crear test_integration.py
+- [ ] Implementar 4 flujos end-to-end
+- [ ] Validar data integrity
 
 ---
 
-### 4. Setup Testing Framework (Prioridad MEDIA)
+### 4. SQLCipher Implementation (Prioridad BAJA - OPCIONAL)
 **Tiempo estimado**: 1-2 horas
 
-#### A. Backend Testing (pytest)
-**Archivos**:
-- `backend/pytest.ini`
-- `backend/conftest.py`
-- `backend/tests/test_database.py`
-- `backend/tests/test_auth.py`
+**Contexto**: Sprint 0 documentó blocker de SQLCipher + SQLAlchemy. Si hay tiempo, intentar resolución.
 
-**Tareas**:
-- [ ] Configurar pytest
-- [ ] Factory fixtures para User
-- [ ] Test DB en memoria (SQLite)
-- [ ] Tests básicos (5+)
+#### Opción A: SQLCipher Directo (Sin SQLAlchemy)
+**Estrategia**: Usar `sqlite3` con pragmas de encriptación
 
-#### B. Frontend Testing (Jest)
-**Archivos**:
-- `frontend/jest.config.js`
-- `frontend/src/services/__tests__/api.test.ts`
+```python
+import sqlite3
 
-**Tareas**:
-- [ ] Configurar Jest + Testing Library
-- [ ] Tests de API service
-- [ ] Mock axios
+conn = sqlite3.connect('/path/to/db.sqlite')
+conn.execute("PRAGMA key = 'your-secret-key'")
+conn.execute("PRAGMA cipher_page_size = 4096")
+# Usar raw SQL queries
+```
+
+**Pros**: Control total, seguro que funciona  
+**Contras**: Perder ORM (mucho código manual)
+
+#### Opción B: Migrar a PostgreSQL + pgcrypto
+**Estrategia**: Cambiar de SQLite a PostgreSQL, usar pgcrypto para encriptación de columnas
+
+**Pros**: Mejor para producción, ORM funciona  
+**Contras**: Requiere servidor PostgreSQL
+
+**Decisión**: Solo intentar si hay tiempo extra. No es blocker para MVP.
 
 ---
 
-## 📋 Checklist de Entregables
+## 📋 Checklist de Entregables Sprint 1
 
-### Sprint 0 Completado ✅
-- [ ] SQLCipher funcionando (encriptación real)
-- [ ] 7 modelos creados (User + Academic + Student)
-- [ ] Argon2id implementado y testeado
-- [ ] Rate limiting en login funcional
-- [ ] 25+ tests passing
-- [ ] Coverage > 70%
+### Endpoints Completos
+- [ ] 5 endpoints Academic Years (CRUD)
+- [ ] 5 endpoints Periods (CRUD)
+- [ ] 5 endpoints Grades (CRUD)
+- [ ] 6 endpoints Groups (CRUD + assign)
+- [ ] 6 endpoints Students (CRUD + assign + search)
 
-### Criterios de Aceptación
-1. ✅ `pytest` ejecuta sin errores
-2. ✅ Test de encriptación DB pasa
-3. ✅ Test de Argon2id rechaza bcrypt
-4. ✅ Test de rate limiting bloquea 6to intento
-5. ✅ Estructura de 7 tablas creada en DB
+### Tests
+- [ ] test_academic_years.py (8+ tests)
+- [ ] test_periods.py (8+ tests)
+- [ ] test_grades.py (6+ tests)
+- [ ] test_groups.py (10+ tests)
+- [ ] test_students.py (12+ tests)
+- [ ] test_integration.py (4 scenarios)
+- [ ] Coverage > 85%
+
+### Validaciones
+- [ ] Fechas de períodos no superpuestas
+- [ ] Capacidad máxima de grupos
+- [ ] Student ID único
+- [ ] Soft delete implementado
+
+### Documentación
+- [ ] API.md actualizado con nuevos endpoints
+- [ ] TRACKING.md con progreso Sprint 1
+- [ ] Postman collection exportada
 
 ---
 
 ## 🔄 Orden de Ejecución Recomendado
 
-### Sesión 1 (2-3 horas)
-1. **Resolver SQLCipher** (30 min)
-   - Opción A → B → C hasta que funcione
-   
-2. **Crear User Model** (45 min)
-   - Con Argon2id
-   - Tests básicos
+### Sesión 1: Academic Structure (3-4 horas)
+1. **Academic Years CRUD** (60 min)
+   - Schemas + Routes + Service
+   - 8 tests
 
-3. **Crear Academic Models** (60 min)
-   - 5 modelos
-   - Relationships
+2. **Periods CRUD** (60 min)
+   - Schemas + Routes + Validaciones
+   - 8 tests
 
-4. **Inicializar DB** (15 min)
-   - Ejecutar migrations
-   - Verificar tablas
+3. **Grades CRUD** (45 min)
+   - Schemas + Routes
+   - 6 tests
 
-### Sesión 2 (2-3 horas)
-5. **Password Validator** (30 min)
-   - Service + tests
+4. **Run tests** (15 min)
+   - Verificar >80% coverage
+   - Fix cualquier fallo
 
-6. **Rate Limiter** (45 min)
-   - Service + modelo LoginAttempt
+### Sesión 2: Student Management (3-4 horas)
+5. **Groups CRUD** (90 min)
+   - Schemas + Routes + Capacity validation
+   - 10 tests
 
-7. **Auth Routes** (60 min)
-   - 4 endpoints
-   - JWT middleware
+6. **Students CRUD** (90 min)
+   - Schemas + Routes + Pagination + Search
+   - 12 tests
 
-8. **Testing Setup** (30 min)
-   - pytest configurado
-   - 10+ tests corriendo
+7. **Integration Tests** (30 min)
+   - 4 end-to-end scenarios
+
+8. **Documentation** (30 min)
+   - Actualizar API.md
+   - Postman collection
 
 ---
 
 ## 🎓 Conocimientos Necesarios
 
-### Tecnologías Nuevas
-- **SQLCipher**: Encriptación transparente de SQLite
-- **Argon2id**: Algoritmo KDF moderno (mejor que bcrypt)
-- **Keyring**: Acceso a keychain del OS
-- **slowapi**: Rate limiting para FastAPI
+### FastAPI Avanzado
+- **Dependency Injection**: Para autorización
+- **Paginación**: Cursor vs Offset
+- **Query Parameters**: Filtros y búsqueda
+- **Response Models**: Serialización consistente
 
-### Conceptos de Seguridad
-- Key Derivation Functions (KDF)
-- Password hashing vs encryption
-- Rate limiting strategies
-- JWT token management
+### SQLAlchemy
+- **Relationships**: One-to-many, many-to-many
+- **Cascade**: Delete behavior
+- **Eager/Lazy Loading**: Optimización de queries
+- **Transactions**: ACID compliance
+
+### Testing
+- **Fixtures**: Reusable test data
+- **Parametrize**: Test múltiples casos
+- **Coverage**: Interpretar reportes
+- **Integration Tests**: End-to-end flows
 
 ---
 
 ## 🔗 Referencias Útiles
 
 ### Documentación Interna
-- [DATABASE.md](DATABASE.md) - Líneas 48-267 (modelos a crear)
-- [SECURITY.md](SECURITY.md) - Líneas 153-337 (SQLCipher + Argon2id)
-- [ROADMAP.md](ROADMAP.md) - Líneas 25-130 (Sprint 0 detallado)
+- [DATABASE.md](../DATABASE.md) - Modelos existentes (líneas 81-267)
+- [API.md](../API.md) - Especificación de endpoints
+- [SECURITY.md](../SECURITY.md) - Permisos y validaciones
+- [TRACKING.md](../TRACKING.md) - Progreso actual
 
 ### Documentación Externa
-- [SQLCipher Docs](https://www.zetetic.net/sqlcipher/documentation/)
-- [Passlib Argon2](https://passlib.readthedocs.io/en/stable/lib/passlib.hash.argon2.html)
-- [FastAPI JWT](https://fastapi.tiangolo.com/tutorial/security/oauth2-jwt/)
+- [FastAPI Docs](https://fastapi.tiangolo.com/)
+- [SQLAlchemy ORM](https://docs.sqlalchemy.org/en/20/orm/)
+- [Pydantic Validation](https://docs.pydantic.dev/)
 - [pytest Fixtures](https://docs.pytest.org/en/latest/fixture.html)
 
 ---
 
 ## 🚨 Bloqueadores Potenciales
 
-### Bloqueador #1: SQLCipher no compila
-**Síntoma**: Error al instalar pysqlcipher3  
-**Solución**: Usar sqlcipher3-binary o Docker  
-**Tiempo perdido estimado**: 30-60 min
+### Bloqueador #1: Validación de Fechas Complicada
+**Síntoma**: Períodos superpuestos no detectados correctamente  
+**Solución**: Usar SQL query con BETWEEN + COUNT  
+**Tiempo estimado**: 30 min debugging
 
-### Bloqueador #2: Argon2 muy lento en tests
-**Síntoma**: Tests tardan >2 segundos cada uno  
-**Solución**: Reducir memory_cost en tests (2048 en lugar de 65536)  
-**Workaround**: Mock password hashing en tests
+### Bloqueador #2: Tests Lentos (N+1 queries)
+**Síntoma**: Tests tardan >5 segundos  
+**Solución**: Usar `joinedload()` en relationships  
+**Workaround**: Crear menos fixtures
 
-### Bloqueador #3: Keyring no funciona en headless
-**Síntoma**: Error al acceder keychain del OS  
-**Solución**: Usar keyrings.alt (backend alternativo)  
-**Workaround**: Fallback a archivo .env
+### Bloqueador #3: Capacidad de Grupos
+**Síntoma**: Lógica de validación compleja  
+**Solución**: Trigger o check en DB + validación en service  
+**Tiempo estimado**: 45 min
 
 ---
 
-## 📊 Métricas de Éxito
+## 📊 Métricas de Éxito Sprint 1
 
-Al finalizar la próxima sesión, deberías tener:
+Al finalizar Sprint 1, deberías tener:
 
 | Métrica | Objetivo |
 |---------|----------|
-| Modelos creados | 7/19 (37%) |
-| Tests passing | 25+ |
-| Coverage | 70%+ |
-| Tablas en DB | 7/19 |
-| Endpoints funcionando | 4 (auth) |
-| Tiempo invertido | 5-8 horas |
-| Progreso Sprint 0 | 100% ✅ |
+| Endpoints funcionando | 27 (auth:4 + academic:15 + students:8) |
+| Tests passing | 75+ |
+| Coverage | 85%+ |
+| Tablas en uso | 7/7 (100%) |
+| Líneas de código | ~2500 (backend) |
+| Tiempo invertido | 6-8 horas |
 
 ---
+
+## 📝 Notas Finales
+
+### Estado Actual (Sprint 0)
+- ✅ Base de datos con 7 modelos
+- ✅ Autenticación JWT completa
+- ✅ 23 tests backend + 2 frontend
+- ✅ 81.73% coverage
+- ✅ Aplicación corriendo correctamente
+
+### Próximo Paso Inmediato
+**Empezar con Academic Years**: Es la base de todo el sistema. Sin años académicos no se pueden crear períodos ni grupos.
+
+**Comando para iniciar**:
+```bash
+cd /home/lfallas/Workspace/SGE/grades-mvp/backend
+source venv/bin/activate
+
+# Crear estructura
+mkdir -p app/schemas app/services
+touch app/schemas/academic.py
+touch app/routes/academic_years.py
+touch app/services/academic.py
+touch tests/test_academic_years.py
+
+# Iniciar desarrollo
+code app/schemas/academic.py
+```
+
+### SQLCipher - Decisión Final
+**Recomendación**: Posponer para después de MVP. SQLite sin encriptación es suficiente para desarrollo. En producción, usar PostgreSQL + pgcrypto o disk-level encryption.
+
+**Razón**: No bloquear desarrollo del MVP por un feature de infraestructura. La encriptación es importante, pero la funcionalidad core es más prioritaria.
+
+---
+
+**Última actualización**: 17 febrero 2026  
+**Próxima revisión**: Al completar Sprint 1
 
 ## 💡 Tips para Éxito
 
