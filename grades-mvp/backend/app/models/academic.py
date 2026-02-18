@@ -69,7 +69,8 @@ class Grade(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     academic_year_id: Mapped[int] = mapped_column(ForeignKey("academic_years.id"), nullable=False)
     name: Mapped[str] = mapped_column(String(100), nullable=False)
-    level: Mapped[int] = mapped_column(Integer, nullable=False, index=True)  # 7, 8, 9, 10, 11
+    level: Mapped[int] = mapped_column(Integer, nullable=False, index=True)  # 1-6 para primaria
+    description: Mapped[str | None] = mapped_column(String(500), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
@@ -96,6 +97,7 @@ class Group(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     grade_id: Mapped[int] = mapped_column(ForeignKey("grades.id"), nullable=False)
     name: Mapped[str] = mapped_column(String(100), nullable=False)
+    capacity: Mapped[int | None] = mapped_column(Integer, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
