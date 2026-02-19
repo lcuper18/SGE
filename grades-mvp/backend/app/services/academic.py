@@ -517,3 +517,177 @@ class GroupService:
         ).order_by(Student.first_name, Student.last_name).all()
         
         return students
+
+
+# ============================================================================
+# StudentService - CRUD para Students
+# ============================================================================
+
+class StudentService:
+    """
+    Servicio para gestionar estudiantes
+    Incluye búsqueda, paginación y soft delete
+    """
+    
+    @staticmethod
+    def get_all(
+        db: Session,
+        search_query: Optional[str] = None,
+        is_active: Optional[bool] = None,
+        subgroup_id: Optional[int] = None,
+        page: int = 1,
+        page_size: int = 50
+    ):
+        """
+        Obtener todos los estudiantes con filtros y paginación
+        
+        Args:
+            search_query: Buscar por nombre o identification
+            is_active: Filtrar por estado activo/inactivo
+            subgroup_id: Filtrar por subgrupo
+            page: Número de página (1-based)
+            page_size: Tamaño de página
+        """
+        from app.models.student import Student
+        
+        query = db.query(Student)
+        
+        # Filtro de búsqueda
+        if search_query:
+            search_pattern = f"%{search_query}%"
+            query = query.filter(
+                (Student.identification.ilike(search_pattern)) |
+                (Student.first_name.ilike(search_pattern)) |
+                (Student.last_name.ilike(search_pattern))
+            )
+        
+        # Filtro por estado
+        if is_active is not None:
+            query = query.filter(Student.is_active == is_active)
+        
+        # Filtro por subgrupo
+        if subgroup_id:
+            query = query.filter(Student.subgroup_id == subgroup_id)
+        
+        # Ordenar por nombre
+        query = query.order_by(Student.first_name, Student.last_name)
+        
+        # Paginación
+        offset = (page - 1) * page_size
+        students = query.offset(offset).limit(page_size).all()
+        
+        # Contar total
+        total = query.count()
+        
+        return {
+            "students": students,
+            "total": total,
+            "page": page,
+            "page_size": page_size,
+            "total_pages": (total + page_size - 1) // page_size
+        }
+    
+    @staticmethod
+    def get_by_id(db: Session, student_id: int):
+        """Obtener estudiante por ID"""
+        from app.models.student import Student
+        return db.query(Student).filter(Student.id == student_id).first()
+    
+    @staticmethod
+    def get_by_identification(db: Session, identification: str):
+        """Obtener estudiante por número de identificación"""
+        from app.models.student import Student
+        return db.query(Student).filter(Student.identification == identification).first()
+    
+    @staticmethod
+    def create(db: Session, data: dict):
+        """
+        Crear nuevo estudiante
+        Valida que identification sea único
+        """
+        from app.models.student import Student
+        from app.models.academic import Subgroup
+        
+        # Validar identification único
+        existing = StudentService.get_by_identification(db, data["identification"])
+        if existing:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Student with identification {data['identification']} already exists"
+            )
+        
+        # Validar que el subgrupo exista
+        subgroup = db.query(Subgroup).filter(Subgroup.id == data["subgroup_id"]).first()
+        if not subgroup:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Subgroup {data['subgroup_id']} not found"
+            )
+        
+        student = Student(**data)
+        db.add(student)
+        db.commit()
+        db.refresh(student)
+        return student
+    
+    @staticmethod
+    def update(db: Session, student_id: int, data: dict):
+        """
+        Actualizar estudiante
+        Valida identification único si se está cambiando
+        """
+        from app.models.student import Student
+        from app.models.academic import Subgroup
+        
+        student = StudentService.get_by_id(db, student_id)
+        if not student:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Student {student_id} not found"
+            )
+        
+        # Validar identification único si se está cambiando
+        if "identification" in data and data["identification"] != student.identification:
+            existing = StudentService.get_by_identification(db, data["identification"])
+            if existing:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Student with identification {data['identification']} already exists"
+                )
+        
+        # Validar subgrupo si se está cambiando
+        if "subgroup_id" in data and data["subgroup_id"] != student.subgroup_id:
+            subgroup = db.query(Subgroup).filter(Subgroup.id == data["subgroup_id"]).first()
+            if not subgroup:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=f"Subgroup {data['subgroup_id']} not found"
+                )
+        
+        # Actualizar campos
+        for key, value in data.items():
+            setattr(student, key, value)
+        
+        db.commit()
+        db.refresh(student)
+        return student
+    
+    @staticmethod
+    def delete(db: Session, student_id: int):
+        """
+        Soft delete: Marcar estudiante como inactivo
+        """
+        from app.models.student import Student
+        
+        student = StudentService.get_by_id(db, student_id)
+        if not student:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Student {student_id} not found"
+            )
+        
+        # Soft delete
+        student.is_active = False
+        db.commit()
+        db.refresh(student)
+        return student

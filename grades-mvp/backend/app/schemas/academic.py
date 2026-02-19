@@ -144,3 +144,41 @@ class GroupResponse(GroupBase):
     
     class Config:
         from_attributes = True
+
+
+# ============================================================================
+# Student Schemas
+# ============================================================================
+
+class StudentBase(BaseModel):
+    """Schema base para Student"""
+    identification: str = Field(..., min_length=1, max_length=50, description="Número de identificación único")
+    first_name: str = Field(..., min_length=1, max_length=100, description="Nombre")
+    last_name: str = Field(..., min_length=1, max_length=100, description="Apellidos")
+    date_of_birth: date = Field(..., description="Fecha de nacimiento")
+    subgroup_id: int = Field(..., gt=0, description="ID del subgrupo")
+
+
+class StudentCreate(StudentBase):
+    """Schema para crear Student"""
+    pass
+
+
+class StudentUpdate(BaseModel):
+    """Schema para actualizar Student"""
+    identification: Optional[str] = Field(None, min_length=1, max_length=50)
+    first_name: Optional[str] = Field(None, min_length=1, max_length=100)
+    last_name: Optional[str] = Field(None, min_length=1, max_length=100)
+    date_of_birth: Optional[date] = None
+    subgroup_id: Optional[int] = Field(None, gt=0)
+    is_active: Optional[bool] = None
+
+
+class StudentResponse(StudentBase):
+    """Schema de respuesta para Student"""
+    id: int
+    is_active: bool
+    full_name: str = Field(description="Nombre completo")
+    
+    class Config:
+        from_attributes = True

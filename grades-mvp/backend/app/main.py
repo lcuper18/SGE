@@ -11,7 +11,7 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 
 from app.database import init_db, test_encryption
-from app.routes import auth, academic_years, periods, grades, groups
+from app.routes import auth, academic_years, periods, grades, groups, students
 
 # Rate limiter
 limiter = Limiter(key_func=get_remote_address)
@@ -118,6 +118,7 @@ app.include_router(academic_years.router)
 app.include_router(periods.router)
 app.include_router(grades.router)
 app.include_router(groups.router)
+app.include_router(students.router)
 
 
 # TODO: Import additional routers cuando estén creados
