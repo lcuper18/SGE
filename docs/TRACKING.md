@@ -168,6 +168,88 @@ Epic (GitHub Issue + BACKLOG.md)
 
 ---
 
+### Sprint 1: Backend Core Features (In Progress)
+**Branch:** `feature/mvp-grades`  
+**Start Date:** February 18, 2026  
+**Focus:** Academic structure + Student management APIs
+
+#### Session 1 - February 18, 2026
+**Completed:** Academic structure foundation
+
+- ✅ **Academic Years CRUD** (5 endpoints, 10 tests)
+  - Unique year validation
+  - Only one active year constraint
+  - Routes coverage: 100%
+
+- ✅ **Periods CRUD** (5 endpoints, 12 tests)
+  - Date overlap validation
+  - Filter by academic_year_id
+  - Routes coverage: 100%
+
+- ✅ **Grades CRUD** (5 endpoints, 15 tests)
+  - Level validation (1-6)
+  - Unique level per academic year
+  - Cannot delete grade with groups
+  - Routes coverage: 100%
+
+**Commits:**
+- `2a57829` - Academic Years CRUD
+- `b3d87d2` - Periods CRUD with date validation
+- `07cd054` - Grades CRUD with level validation
+
+**Test Results:** 37 tests passing, 82% coverage
+
+---
+
+#### Session 2 - February 19, 2026
+**Completed:** Student management + Integration tests
+
+- ✅ **Groups CRUD** (6 endpoints, 17 tests)
+  - Unique name per grade validation
+  - Capacity management
+  - Cannot delete with students
+  - Get students endpoint
+  - student_count computed field
+  - Routes coverage: 100%
+
+- ✅ **Students CRUD** (5 endpoints, 15 tests)
+  - Search by identification/name
+  - Filter by is_active, subgroup_id
+  - Pagination (50 per page default)
+  - Soft delete (is_active flag)
+  - Unique identification validation
+  - Routes coverage: 100%
+
+- ✅ **Integration Tests** (5 comprehensive tests)
+  - Full academic structure flow
+  - Multiple students assignment
+  - Group capacity validation
+  - Academic year cascade filters
+  - Student search with pagination
+
+**Commits:**
+- `20c3cbc` - Groups CRUD API
+- `2e56b49` - Students CRUD API
+- `f359b3d` - Integration tests
+
+**Test Results:** 74 tests passing, 86.16% coverage
+
+**Files Created:**
+- `app/routes/groups.py` (152 lines)
+- `app/routes/students.py` (120 lines)
+- `tests/test_groups.py` (611 lines)
+- `tests/test_students.py` (680 lines)
+- `tests/test_integration.py` (371 lines)
+
+**Coverage Breakdown:**
+- All academic routes: 100%
+- Academic schemas: 100%
+- Academic services: 96%
+- Academic models: 93%
+- Student model: 95%
+
+---
+
 ### Next: Sprint 1 (Planned)
 **Focus:** Backend Core Features  
 **Target:** Academic structure endpoints + Student management
