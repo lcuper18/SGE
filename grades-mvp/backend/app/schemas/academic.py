@@ -112,3 +112,35 @@ class GradeResponse(GradeBase):
     
     class Config:
         from_attributes = True
+
+
+# ============================================================================
+# GROUP SCHEMAS
+# ============================================================================
+
+class GroupBase(BaseModel):
+    """Schema base para Group"""
+    grade_id: int = Field(..., gt=0, description="ID del grado")
+    name: str = Field(..., min_length=1, max_length=100, description="Nombre del grupo")
+    capacity: Optional[int] = Field(None, gt=0, le=100, description="Capacidad máxima de estudiantes")
+
+
+class GroupCreate(GroupBase):
+    """Schema para crear Group"""
+    pass
+
+
+class GroupUpdate(BaseModel):
+    """Schema para actualizar Group"""
+    grade_id: Optional[int] = Field(None, gt=0)
+    name: Optional[str] = Field(None, min_length=1, max_length=100)
+    capacity: Optional[int] = Field(None, gt=0, le=100)
+
+
+class GroupResponse(GroupBase):
+    """Schema de respuesta para Group"""
+    id: int
+    student_count: int = Field(default=0, description="Número de estudiantes en el grupo")
+    
+    class Config:
+        from_attributes = True

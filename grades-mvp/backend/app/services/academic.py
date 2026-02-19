@@ -342,3 +342,178 @@ class GradeService:
         db.delete(grade)
         db.commit()
         return True
+
+
+# ============================================================================
+# GROUP SERVICE
+# ============================================================================
+
+class GroupService:
+    """Service para Group operations"""
+    
+    @staticmethod
+    def get_all(db: Session, grade_id: Optional[int] = None, academic_year_id: Optional[int] = None) -> List:
+        """Obtener todos los grupos, opcionalmente filtrados"""
+        from app.models.academic import Group, Grade
+        
+        query = db.query(Group)
+        
+        if grade_id:
+            query = query.filter(Group.grade_id == grade_id)
+        
+        if academic_year_id:
+            query = query.join(Grade).filter(Grade.academic_year_id == academic_year_id)
+        
+        return query.order_by(Group.name).all()
+    
+    @staticmethod
+    def get_by_id(db: Session, group_id: int):
+        """Obtener grupo por ID"""
+        from app.models.academic import Group
+        return db.query(Group).filter(Group.id == group_id).first()
+    
+    @staticmethod
+    def get_student_count(db: Session, group_id: int) -> int:
+        """Obtener número de estudiantes en un grupo"""
+        from app.models.student import Student
+        from app.models.academic import Subgroup
+        
+        # Contar estudiantes a través de subgroups
+        count = db.query(Student).join(
+            Subgroup, Student.subgroup_id == Subgroup.id
+        ).filter(
+            Subgroup.group_id == group_id
+        ).count()
+        
+        return count
+    
+    @staticmethod
+    def create(db: Session, data) -> "Group":
+        """Crear nuevo grupo"""
+        from app.models.academic import Group, Grade
+        
+        # Validar que el grado exista
+        grade = db.query(Grade).filter(Grade.id == data.grade_id).first()
+        if not grade:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Grade {data.grade_id} not found"
+            )
+        
+        # Validar nombre único por grado
+        existing = db.query(Group).filter(
+            and_(
+                Group.grade_id == data.grade_id,
+                Group.name == data.name
+            )
+        ).first()
+        
+        if existing:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Group '{data.name}' already exists for this grade"
+            )
+        
+        # Crear grupo
+        group = Group(**data.model_dump())
+        db.add(group)
+        db.commit()
+        db.refresh(group)
+        return group
+    
+    @staticmethod
+    def update(db: Session, group_id: int, data) -> "Group":
+        """Actualizar grupo"""
+        from app.models.academic import Group
+        
+        group = GroupService.get_by_id(db, group_id)
+        if not group:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Group {group_id} not found"
+            )
+        
+        # Validar nombre único si se actualiza
+        update_data = data.model_dump(exclude_unset=True)
+        
+        if 'name' in update_data or 'grade_id' in update_data:
+            new_name = update_data.get('name', group.name)
+            new_grade_id = update_data.get('grade_id', group.grade_id)
+            
+            existing = db.query(Group).filter(
+                and_(
+                    Group.grade_id == new_grade_id,
+                    Group.name == new_name,
+                    Group.id != group_id
+                )
+            ).first()
+            
+            if existing:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Group '{new_name}' already exists for this grade"
+                )
+        
+        # Validar capacidad si hay estudiantes
+        if 'capacity' in update_data and update_data['capacity']:
+            student_count = GroupService.get_student_count(db, group_id)
+            if student_count > update_data['capacity']:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Cannot set capacity to {update_data['capacity']}. Group has {student_count} students."
+                )
+        
+        # Actualizar
+        for field, value in update_data.items():
+            setattr(group, field, value)
+        
+        db.commit()
+        db.refresh(group)
+        return group
+    
+    @staticmethod
+    def delete(db: Session, group_id: int) -> bool:
+        """Eliminar grupo (solo si no tiene estudiantes)"""
+        from app.models.academic import Group
+        
+        group = GroupService.get_by_id(db, group_id)
+        if not group:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Group {group_id} not found"
+            )
+        
+        # Verificar si tiene estudiantes
+        student_count = GroupService.get_student_count(db, group_id)
+        if student_count > 0:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Cannot delete group with {student_count} students"
+            )
+        
+        db.delete(group)
+        db.commit()
+        return True
+    
+    @staticmethod
+    def get_students(db: Session, group_id: int) -> List:
+        """Obtener estudiantes de un grupo"""
+        from app.models.student import Student
+        from app.models.academic import Subgroup
+        
+        # Validar que el grupo exista
+        group = GroupService.get_by_id(db, group_id)
+        if not group:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Group {group_id} not found"
+            )
+        
+        # Obtener estudiantes a través de subgroups
+        students = db.query(Student).join(
+            Subgroup, Student.subgroup_id == Subgroup.id
+        ).filter(
+            Subgroup.group_id == group_id
+        ).order_by(Student.first_name, Student.last_name).all()
+        
+        return students
