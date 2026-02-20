@@ -210,7 +210,7 @@
 - Time slots configurable per section (day/night)
 - Templates reusable across weeks
 
-### 📖 Story 4.1: Time Slot Definition
+### ✅ Story 4.1: Time Slot Definition
 **As an** Admin  
 **I want to** define time slots for lessons, breaks, and lunch  
 **So that** the daily schedule is structured
@@ -219,17 +219,38 @@
 - TimeSlot model: name, start_time, end_time, slot_type (lesson/break/lunch), lesson_type (academic/technical), weekday, section
 - Validation: no overlapping time slots for same weekday + section
 - Equivalence calculation: 4 technical = 6 academic
-- Default templates for day (7:00-16:30) and night (18:00-22:00) sections
+- Default templates for day (7:00-16:40) and night (18:00-22:00) sections
 
 **Technical Tasks:**
-- ⚙️ Task 4.1.1: Create TimeSlot model (name, times, types, weekday, section)
-- ⚙️ Task 4.1.2: Add validation for overlapping slots
-- ⚙️ Task 4.1.3: Crear script de seed para horarios por defecto
-- ⚙️ Task 4.1.4: API endpoints: /api/time-slots/
-- ⚙️ Task 4.1.5: Write tests for time slot validation
+- ✅ Task 4.1.1: Create TimeSlot model (name, times, types, weekday, section)
+- ✅ Task 4.1.2: Add validation for overlapping slots
+- ✅ Task 4.1.3: Seed endpoint para horarios por defecto (day: 13 bloques, night: 5 bloques)
+- ✅ Task 4.1.4: API endpoints: /api/time-slots/ (6 endpoints: CRUD + seed-template)
+- ✅ Task 4.1.5: 39 tests, 100% route coverage
 
 **Priority:** P0: Critical  
-**Status:** 📋 Todo
+**Status:** ✅ Done — commit `bb6cdd1`
+
+### ✅ Story 4.2: Teacher-Group Assignment
+**As an** Admin/Coordinator  
+**I want to** assign teachers to groups for specific subjects  
+**So that** teachers can only mark attendance for their assigned groups
+
+**Acceptance Criteria:**
+- TeacherGroupAssignment model: teacher_id, group_id, subject, section, period_id
+- Validates teacher role (teacher/coordinator/admin only, not student/parent)
+- UniqueConstraint(teacher_id, group_id, subject, section) — no duplicados
+- GET /my/ endpoint for teachers to list their own assignments
+- 409 on duplicate, 404 on missing teacher/group
+
+**Technical Tasks:**
+- ✅ Task 4.2.1: Create TeacherGroupAssignment model (FK teacher, group, subject, section)
+- ✅ Task 4.2.2: Validate teacher role before assignment
+- ✅ Task 4.2.3: API endpoints: /api/teacher-assignments/ (6 endpoints: CRUD + /my/)
+- ✅ Task 4.2.4: 33 tests, 100% route coverage
+
+**Priority:** P0: Critical  
+**Status:** ✅ Done — commit `bce1512`
 
 ---
 
@@ -495,22 +516,25 @@ See ROADMAP.md for:
 **Total MVP Stories:** ~18  
 **Estimated MVP Tasks:** ~80-100
 
+**Tests:** 199 passed, 3 skipped — 93.48% coverage (Feb 20, 2026)  
+**Endpoints activos:** 38 (auth + academic + students + time-slots + teacher-assignments)
+
 **Estado actual:**
-- ✅ Epic 1 (Auth básica) — Story 1.1 done, Story 1.2-1.3 pendientes
-- ✅ Epic 2 (Academic Structure) — completo (26 endpoints, 97 tests, 91% coverage)
+- ✅ Epic 1 (Auth básica) — Story 1.1 \u2705 done, Story 1.3 \u2705 done, Story 1.2 (Password Reset) pendiente
+- ✅ Epic 2 (Academic Structure) — completo
 - 🚧 Epic 3 (Students) — Story 3.1 done, Story 3.2 (Guardians) pendiente
-- 📋 Epic 4 (Time Slots) — pendiente
-- 📋 Epic 5 (Attendance) — pendiente
+- ✅ Epic 4 (Time Slots & Schedules) — Story 4.1 \u2705 done (commit bb6cdd1), Story 4.2 \u2705 done (commit bce1512)
+- 📋 Epic 5 (Attendance) — pendiente (**SIGUIENTE PRIORIDAD**)
 - 📋 Epic 6 (Frontend) — pendiente
 - 📋 Epic 7 (Infrastructure) — pendiente
 
 **Priority Order for MVP Development (actualizado):**
-1. ~~EPIC 1 Auth básica~~ ✅ → Story 1.3 (Permissions) pendiente
+1. ~~EPIC 1 Auth básica~~ ✅ → Story 1.1 \u2705 + Story 1.3 \u2705 (Permissions); Story 1.2 pendiente P1
 2. ~~EPIC 2 Academic Structure~~ ✅
-3. ~~EPIC 3 Students básico~~ ✅ → Story 3.2 (Guardians) pendiente
-4. **Story 1.3 (Role-Based Permissions)** → Proteger los 26 endpoints
-5. **EPIC 4 (Time Slots)** → Prerequisito para asistencia
-6. **EPIC 5 (Attendance)** → Feature principal del MVP
+3. ~~EPIC 3 Students básico~~ ✅ → Story 3.2 (Guardians) pendiente P1
+4. ~~Story 1.3 (Role-Based Permissions)~~ ✅
+5. ~~EPIC 4 (Time Slots)~~ ✅ → Story 4.1 \u2705 + Story 4.2 \u2705
+6. **EPIC 5 (Attendance)** → Feature principal del MVP — **SIGUIENTE**
 7. **EPIC 6 (Frontend)** → Interfaz de usuario
 8. **EPIC 7 (Infrastructure)** → Deployment readiness
 

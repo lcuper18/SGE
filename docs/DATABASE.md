@@ -6,7 +6,8 @@
 - Student: profile, status, relationships
 - Guardian: contacts linked to student
 - AcademicYear, Term, Grade, Group
-- TimeSlot: lesson blocks, breaks, lunch
+- TimeSlot: lesson blocks, breaks, lunch (weekday + section templates)
+- TeacherGroupAssignment: teacher → group per subject/section (access control for attendance)
 - Attendance: per-lesson status records
 
 ## Key Rules
@@ -14,11 +15,14 @@
 - Student_id unique
 - Attendance unique per student/date/time_slot (lesson type only)
 - Group capacity enforced in service layer
+- TimeSlot: no overlapping slots per weekday+section (HTTP 409)
+- TeacherGroupAssignment unique per (teacher_id, group_id, subject, section)
 
 ## Indexing
 - Student: student_id, last_name
 - Attendance: date, time_slot, status
 - Group: grade_id, name
+- TeacherGroupAssignment: teacher_id, group_id (indexed)
 
 ## Soft Delete
 - Student and some child models use soft delete where needed

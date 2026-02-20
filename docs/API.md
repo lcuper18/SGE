@@ -48,9 +48,22 @@ Attendance
 - GET /api/v1/attendance/daily_report/
 
 Time Slots
-- GET /api/v1/time-slots/
+- GET /api/time-slots/
+- POST /api/time-slots/
+- GET /api/time-slots/{id}/
+- PUT /api/time-slots/{id}/
+- DELETE /api/time-slots/{id}/
+- POST /api/time-slots/seed-template/
 
-Reports
+Teacher Assignments
+- GET /api/teacher-assignments/
+- POST /api/teacher-assignments/
+- GET /api/teacher-assignments/my/
+- GET /api/teacher-assignments/{id}/
+- PUT /api/teacher-assignments/{id}/
+- DELETE /api/teacher-assignments/{id}/
+
+Attendance
 - GET /api/v1/reports/attendance_summary/
 
 ## Permission Matrix (MVP)
