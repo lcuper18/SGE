@@ -23,7 +23,7 @@
 - Password reset via email
 - Role-based permissions enforced at API level
 
-### 📖 Story 1.1: User Registration & Login
+### ✅ Story 1.1: User Registration & Login
 **As a** user  
 **I want to** register and login with email/password  
 **So that** I can access the system securely
@@ -35,17 +35,17 @@
 - Refresh token rotation implemented
 
 **Technical Tasks:**
-- ⚙️ Task 1.1.1: Setup Django project with PostgreSQL
-- ⚙️ Task 1.1.2: Create custom User model with role field
-- ⚙️ Task 1.1.3: Implement JWT auth with djangorestframework-simplejwt
-- ⚙️ Task 1.1.4: API endpoints: POST /api/v1/auth/register/, POST /api/v1/auth/login/
-- ⚙️ Task 1.1.5: Write unit tests for auth flow
-- ⚙️ Task 1.1.6: Write API tests for register/login endpoints
+- ✅ Task 1.1.1: Setup FastAPI project with SQLite (SQLCipher planificado)
+- ✅ Task 1.1.2: Create custom User model with role field (5 roles)
+- ✅ Task 1.1.3: Implement JWT HS256 + Argon2id password hashing
+- ✅ Task 1.1.4: API endpoints: POST /api/auth/register/, POST /api/auth/login/, POST /api/auth/refresh/
+- ✅ Task 1.1.5: Write unit tests for auth flow
+- ✅ Task 1.1.6: Write API tests (23 tests, 76% route coverage)
 
 **Priority:** P0: Critical  
-**Status:** 📋 Todo
+**Status:** ✅ Done — commit `2145e6e`
 
-### 📖 Story 1.2: Password Reset Flow
+### � Story 1.2: Password Reset Flow
 **As a** user  
 **I want to** reset my password via email  
 **So that** I can recover access if I forget my password
@@ -54,19 +54,19 @@
 - Request reset link via email
 - Link expires after 1 hour
 - New password meets policy
-- Email sent via Celery task
+- Email enviado de forma asíncrona
 
 **Technical Tasks:**
-- ⚙️ Task 1.2.1: Setup Celery + Redis for async tasks
+- ⚙️ Task 1.2.1: Evaluar mecanismo async (BackgroundTasks de FastAPI vs Celery)
 - ⚙️ Task 1.2.2: Create password reset token model
-- ⚙️ Task 1.2.3: API endpoints: POST /api/v1/auth/password-reset/, POST /api/v1/auth/password-reset-confirm/
-- ⚙️ Task 1.2.4: Celery task for sending reset email
+- ⚙️ Task 1.2.3: API endpoints: POST /api/auth/password-reset/, POST /api/auth/password-reset-confirm/
+- ⚙️ Task 1.2.4: Task async para enviar email de reset
 - ⚙️ Task 1.2.5: Write tests for password reset flow
 
 **Priority:** P1: High  
 **Status:** 📋 Todo
 
-### 📖 Story 1.3: Role-Based Permissions
+### � Story 1.3: Role-Based Permissions
 **As a** system  
 **I want to** enforce role-based permissions on all endpoints  
 **So that** users can only access authorized resources
@@ -78,106 +78,105 @@
 - 403 returned for unauthorized access
 
 **Technical Tasks:**
-- ⚙️ Task 1.3.1: Create custom permission classes (IsAdmin, IsCoordinator, etc.)
-- ⚙️ Task 1.3.2: Implement object-level permission checks
-- ⚙️ Task 1.3.3: Apply permissions to all viewsets
+- ⚙️ Task 1.3.1: Create FastAPI dependency functions (require_admin, require_teacher, etc.)
+- ⚙️ Task 1.3.2: Implement object-level permission checks via JWT claims
+- ⚙️ Task 1.3.3: Apply permission dependencies a los 26 endpoints existentes
 - ⚙️ Task 1.3.4: Write permission tests for each role
 
 **Priority:** P0: Critical  
-**Status:** 📋 Todo
+**Status:** 📋 Todo — **SIGUIENTE PRIORIDAD**
 
 ---
 
-## ⭐ EPIC 2: Academic Structure
+## ✅ EPIC 2: Academic Structure
 
-**Goal:** Define academic year, terms, grades, and groups (sections).
+**Goal:** Define academic year, periods, grades, and groups (sections).
 
 **Acceptance Criteria:**
-- Admin can create academic years with start/end dates
-- Terms belong to academic years
-- Grades (levels) can be created and assigned to years
-- Groups (sections) belong to grades and have capacity limits
-- Teachers can be assigned to groups
+- Admin can create academic years ✅
+- Periods belong to academic years, sin solapamiento ✅
+- Grades (levels 1-6) can be created and assigned to years ✅
+- Groups (sections) belong to grades and have capacity limits ✅
+- Teachers can be assigned to groups — 📋 pendiente (Story 1.3)
 
-### 📖 Story 2.1: Academic Year & Term Management
+### ✅ Story 2.1: Academic Year & Period Management
 **As an** Admin  
-**I want to** create academic years and terms  
+**I want to** create academic years and periods  
 **So that** the system reflects the school calendar
 
 **Acceptance Criteria:**
-- One active academic year at a time
-- Terms have start/end dates within the academic year
-- No overlapping terms
-- UI validation for date ranges
+- One active academic year at a time ✅
+- Periods have start/end dates, no overlap ✅
+- UI validation for date ranges ✅
 
 **Technical Tasks:**
-- ⚙️ Task 2.1.1: Create AcademicYear model (name, start_date, end_date, is_active)
-- ⚙️ Task 2.1.2: Create Term model (name, academic_year FK, start_date, end_date)
-- ⚙️ Task 2.1.3: Add validation: only one active year, no term overlap
-- ⚙️ Task 2.1.4: API endpoints: /api/v1/academic-years/, /api/v1/terms/
-- ⚙️ Task 2.1.5: Write tests for year/term validation logic
+- ✅ Task 2.1.1: AcademicYear model (year, name, is_active)
+- ✅ Task 2.1.2: Period model (name, academic_year FK, start_date, end_date) — *nota: llamado **Period**, no Term*
+- ✅ Task 2.1.3: Validation: solo un año activo, sin solapamiento de períodos
+- ✅ Task 2.1.4: API endpoints: /api/academic-years/ (5 endpoints), /api/periods/ (5 endpoints)
+- ✅ Task 2.1.5: 22 tests (10 academic-years + 12 periods), 100% route coverage
 
 **Priority:** P0: Critical  
-**Status:** 📋 Todo
+**Status:** ✅ Done — commits `2a57829`, `b3d87d2`
 
-### 📖 Story 2.2: Grade & Group Management
+### ✅ Story 2.2: Grade & Group Management
 **As an** Admin  
 **I want to** create grades and groups  
 **So that** students can be organized by level and section
 
 **Acceptance Criteria:**
-- Grades have name and level (7th, 8th, 9th, etc.)
-- Groups have name, grade FK, section (day/night), capacity
-- Students can be assigned to one group per academic year
-- Teachers can be assigned to multiple groups
+- Grades have name and level (1-6) ✅
+- Groups have name, grade FK, capacity ✅
+- Students asignados via Subgroup → Group ✅
+- student_count computado en tiempo real ✅
 
 **Technical Tasks:**
-- ⚙️ Task 2.2.1: Create Grade model (name, level, academic_year FK)
-- ⚙️ Task 2.2.2: Create Group model (name, grade FK, section, capacity, teachers M2M)
-- ⚙️ Task 2.2.3: Add capacity validation (group.students.count() <= capacity)
-- ⚙️ Task 2.2.4: API endpoints: /api/v1/grades/, /api/v1/groups/
-- ⚙️ Task 2.2.5: Write tests for group capacity enforcement
+- ✅ Task 2.2.1: Grade model (name, level 1-6, description, academic_year FK)
+- ✅ Task 2.2.2: Group model (name, grade FK, capacity) + Subgroup model
+- ✅ Task 2.2.3: Capacity validation (cannot update capacity below student count)
+- ✅ Task 2.2.4: API endpoints: /api/grades/ (5), /api/groups/ (6 incl. /students/)
+- ✅ Task 2.2.5: 32 tests (15 grades + 17 groups), 100% route coverage
 
 **Priority:** P0: Critical  
-**Status:** 📋 Todo
+**Status:** ✅ Done — commits `07cd054`, `20c3cbc`
 
 ---
 
-## ⭐ EPIC 3: Student Management
+## 🚧 EPIC 3: Student Management
 
 **Goal:** Complete student lifecycle management with profiles, guardians, and documents.
 
 **Acceptance Criteria:**
-- Admin/Coordinator can create student records
-- Students have unique student_id
-- Guardian relationships tracked
-- Student status (active, inactive, graduated, dropout)
-- Soft delete for data retention
+- Admin/Coordinator can create student records ✅
+- Students have unique identification ✅ — *nota: campo llamado **identification**, no student_id*
+- Guardian relationships tracked — 📋 pendiente
+- Student status (active/inactive via soft delete) ✅
+- Soft delete for data retention ✅
 
-### 📖 Story 3.1: Student CRUD Operations
+### ✅ Story 3.1: Student CRUD Operations
 **As an** Admin  
 **I want to** create, view, update, and deactivate students  
 **So that** I can manage the student roster
 
 **Acceptance Criteria:**
-- Student has: student_id (unique), first_name, last_name, birth_date, status, group FK
-- Search by name or student_id
-- Pagination on student list (50 per page)
-- Soft delete (status = inactive instead of hard delete)
-- API follows standard REST conventions
+- Student has: identification (unique), first_name, last_name, date_of_birth, is_active, subgroup FK ✅
+- Search by name or identification ✅
+- Pagination on student list (50 per page) ✅
+- Soft delete (is_active = False) ✅
+- API follows standard REST conventions ✅
 
 **Technical Tasks:**
-- ⚙️ Task 3.1.1: Create Student model (student_id, names, birth_date, status, group FK, etc.)
-- ⚙️ Task 3.1.2: Add unique constraint on student_id
-- ⚙️ Task 3.1.3: Implement soft delete logic
-- ⚙️ Task 3.1.4: API endpoints: /api/v1/students/ (CRUD)
-- ⚙️ Task 3.1.5: Add search filters (name, student_id, status)
-- ⚙️ Task 3.1.6: Write tests for CRUD + search
+- ✅ Task 3.1.1: Student model (identification, names, date_of_birth, is_active, subgroup FK)
+- ✅ Task 3.1.2: Unique constraint on identification
+- ✅ Task 3.1.3: Soft delete via is_active flag
+- ✅ Task 3.1.4: API endpoints: /api/students/ (5 endpoints: POST, GET, GET/:id, PUT, DELETE)
+- ✅ Task 3.1.5: Search filters: identification, first_name, last_name, is_active, subgroup_id
+- ✅ Task 3.1.6: 15 tests, 100% route coverage
 
 **Priority:** P0: Critical  
-**Status:** 📋 Todo
+**Status:** ✅ Done — commit `2e56b49`
 
-### 📖 Story 3.2: Guardian Management
+### � Story 3.2: Guardian Management
 **As an** Admin  
 **I want to** link guardians to students  
 **So that** we have emergency contacts and parent access
@@ -192,7 +191,7 @@
 - ⚙️ Task 3.2.1: Create Guardian model (names, email, phone, relationship)
 - ⚙️ Task 3.2.2: Add M2M relationship between Student and Guardian
 - ⚙️ Task 3.2.3: Link Guardian to User (for parent login)
-- ⚙️ Task 3.2.4: API endpoints: /api/v1/guardians/, /api/v1/students/{id}/guardians/
+- ⚙️ Task 3.2.4: API endpoints: /api/guardians/, /api/students/{id}/guardians/
 - ⚙️ Task 3.2.5: Write tests for guardian relationships
 
 **Priority:** P1: High  
@@ -225,8 +224,8 @@
 **Technical Tasks:**
 - ⚙️ Task 4.1.1: Create TimeSlot model (name, times, types, weekday, section)
 - ⚙️ Task 4.1.2: Add validation for overlapping slots
-- ⚙️ Task 4.1.3: Create management command to seed default schedules
-- ⚙️ Task 4.1.4: API endpoints: /api/v1/time-slots/
+- ⚙️ Task 4.1.3: Crear script de seed para horarios por defecto
+- ⚙️ Task 4.1.4: API endpoints: /api/time-slots/
 - ⚙️ Task 4.1.5: Write tests for time slot validation
 
 **Priority:** P0: Critical  
@@ -260,7 +259,7 @@
 **Technical Tasks:**
 - ⚙️ Task 5.1.1: Create Attendance model (student FK, date, time_slot FK, status)
 - ⚙️ Task 5.1.2: Add unique constraint on student + date + time_slot
-- ⚙️ Task 5.1.3: API endpoint: POST /api/v1/attendance/bulk_mark/
+- ⚙️ Task 5.1.3: API endpoint: POST /api/attendance/bulk_mark/
 - ⚙️ Task 5.1.4: Add permission check (teacher assigned to group only)
 - ⚙️ Task 5.1.5: Write tests for bulk marking and permissions
 
@@ -280,7 +279,7 @@
 - Academic-equivalent totals displayed
 
 **Technical Tasks:**
-- ⚙️ Task 5.2.1: API endpoint: GET /api/v1/attendance/daily_report/
+- ⚙️ Task 5.2.1: API endpoint: GET /api/attendance/daily_report/
 - ⚙️ Task 5.2.2: Add filters (date, group, status)
 - ⚙️ Task 5.2.3: Calculate academic-equivalent attendance
 - ⚙️ Task 5.2.4: Setup WeasyPrint for PDF generation
@@ -302,7 +301,7 @@
 - Export to CSV and PDF
 
 **Technical Tasks:**
-- ⚙️ Task 5.3.1: API endpoint: GET /api/v1/reports/attendance_summary/
+- ⚙️ Task 5.3.1: API endpoint: GET /api/reports/attendance_summary/
 - ⚙️ Task 5.3.2: Add aggregation queries for totals
 - ⚙️ Task 5.3.3: CSV export functionality
 - ⚙️ Task 5.3.4: PDF summary template
@@ -351,7 +350,7 @@
 ### 📖 Story 6.2: Student Management UI
 **As an** Admin  
 **I want to** manage students via web interface  
-**So that** I don't need to use Django admin
+**So that** I can operate the system without technical knowledge
 
 **Acceptance Criteria:**
 - Student list page with search and filters
@@ -421,8 +420,8 @@
 - Hot reload for development
 
 **Technical Tasks:**
-- ⚙️ Task 7.1.1: Create Dockerfile for Django (multi-stage)
-- ⚙️ Task 7.1.2: Create docker-compose.yml (db, redis, backend, nginx)
+- ⚙️ Task 7.1.1: Create Dockerfile for FastAPI (multi-stage)
+- ⚙️ Task 7.1.2: Create docker-compose.yml (backend, frontend, nginx)
 - ⚙️ Task 7.1.3: Create Nginx config for reverse proxy
 - ⚙️ Task 7.1.4: Create .env.example
 - ⚙️ Task 7.1.5: Document setup in README.md
@@ -444,7 +443,7 @@
 
 **Technical Tasks:**
 - ⚙️ Task 7.2.1: Create .github/workflows/ci.yml
-- ⚙️ Task 7.2.2: Add linting steps (flake8, black, ESLint)
+- ⚙️ Task 7.2.2: Add linting steps (ruff/flake8 para Python; ESLint para JS)
 - ⚙️ Task 7.2.3: Add pytest with coverage reporting
 - ⚙️ Task 7.2.4: Add deployment step for staging
 - ⚙️ Task 7.2.5: Configure secrets for deployment
@@ -490,19 +489,30 @@ See ROADMAP.md for:
 
 ## Backlog Notes
 
-**Last Updated:** February 13, 2026  
+**Last Updated:** February 20, 2026  
+**Stack:** FastAPI + SQLite (SQLCipher planificado) + React/Next.js  
 **Total MVP Epics:** 7  
 **Total MVP Stories:** ~18  
 **Estimated MVP Tasks:** ~80-100
 
-**Priority Order for MVP Development:**
-1. EPIC 1 (Auth) → Foundation for everything
-2. EPIC 2 (Academic Structure) → Data model dependencies
-3. EPIC 4 (Time Slots) → Required for attendance
-4. EPIC 3 (Students) → Core entity
-5. EPIC 5 (Attendance) → Primary MVP feature
-6. EPIC 6 (Frontend) → User-facing functionality
-7. EPIC 7 (Infrastructure) → Deployment readiness
+**Estado actual:**
+- ✅ Epic 1 (Auth básica) — Story 1.1 done, Story 1.2-1.3 pendientes
+- ✅ Epic 2 (Academic Structure) — completo (26 endpoints, 97 tests, 91% coverage)
+- 🚧 Epic 3 (Students) — Story 3.1 done, Story 3.2 (Guardians) pendiente
+- 📋 Epic 4 (Time Slots) — pendiente
+- 📋 Epic 5 (Attendance) — pendiente
+- 📋 Epic 6 (Frontend) — pendiente
+- 📋 Epic 7 (Infrastructure) — pendiente
+
+**Priority Order for MVP Development (actualizado):**
+1. ~~EPIC 1 Auth básica~~ ✅ → Story 1.3 (Permissions) pendiente
+2. ~~EPIC 2 Academic Structure~~ ✅
+3. ~~EPIC 3 Students básico~~ ✅ → Story 3.2 (Guardians) pendiente
+4. **Story 1.3 (Role-Based Permissions)** → Proteger los 26 endpoints
+5. **EPIC 4 (Time Slots)** → Prerequisito para asistencia
+6. **EPIC 5 (Attendance)** → Feature principal del MVP
+7. **EPIC 6 (Frontend)** → Interfaz de usuario
+8. **EPIC 7 (Infrastructure)** → Deployment readiness
 
 **Dependencies:**
 - Attendance (Epic 5) depends on: Auth (1), Students (3), Time Slots (4)
