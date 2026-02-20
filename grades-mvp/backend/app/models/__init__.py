@@ -21,6 +21,9 @@ from app.models.user import User
 # Modelo de estudiante
 from app.models.student import Student
 
+# Modelos de horario
+from app.models.schedule import TimeSlot
+
 
 # Exportar todos los modelos
 __all__ = [
@@ -31,10 +34,6 @@ __all__ = [
     "Group",
     "Subgroup",
     "User",
-    "Student"
+    "Student",
+    "TimeSlot",
 ]
-
-# from app.models.student import Student
-# etc...
-
-__all__ = ["Base"]
