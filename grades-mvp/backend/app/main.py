@@ -11,7 +11,7 @@ from slowapi.errors import RateLimitExceeded
 
 from app.database import init_db, test_encryption
 from app.limiter import limiter
-from app.routes import auth, academic_years, periods, grades, groups, students, time_slots
+from app.routes import auth, academic_years, periods, grades, groups, students, time_slots, teacher_assignments
 
 # FastAPI app
 app = FastAPI(
@@ -117,6 +117,7 @@ app.include_router(grades.router)
 app.include_router(groups.router)
 app.include_router(students.router)
 app.include_router(time_slots.router)
+app.include_router(teacher_assignments.router)
 
 
 # TODO: Import additional routers cuando estén creados

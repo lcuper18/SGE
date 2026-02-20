@@ -22,7 +22,7 @@ from app.models.user import User
 from app.models.student import Student
 
 # Modelos de horario
-from app.models.schedule import TimeSlot
+from app.models.schedule import TimeSlot, TeacherGroupAssignment
 
 
 # Exportar todos los modelos
@@ -36,4 +36,5 @@ __all__ = [
     "User",
     "Student",
     "TimeSlot",
+    "TeacherGroupAssignment",
 ]

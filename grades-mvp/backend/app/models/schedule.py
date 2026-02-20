@@ -1,12 +1,13 @@
 """
 Modelos de horarios para SGE Grades MVP
 Define TimeSlot: bloques de lección, recreos y almuerzo por día y sección
+Define TeacherGroupAssignment: asignación de profesor a grupo por materia y sección
 """
 from datetime import datetime, time
 from enum import Enum as PyEnum
 from typing import List, Optional
-from sqlalchemy import Boolean, CheckConstraint, Integer, String, Time, DateTime, UniqueConstraint
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import Boolean, CheckConstraint, ForeignKey, Integer, String, Time, DateTime, UniqueConstraint
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database import Base
 
 
@@ -136,4 +137,74 @@ class TimeSlot(Base):
             f"<TimeSlot(name={self.name!r}, "
             f"weekday={self.weekday}, section={self.section!r}, "
             f"{self.start_time}–{self.end_time})>"
+        )
+
+
+class TeacherGroupAssignment(Base):
+    """
+    Asignación de Profesor a Grupo.
+
+    Vincula un usuario con rol 'teacher' a un grupo (sección escolar) para una
+    materia específica.  Esta tabla es la fuente de verdad para:
+    - Determinar qué grupos puede ver un profesor en el módulo de asistencia.
+    - Filtrar registros de asistencia por profesor autorizado.
+
+    Un profesor puede estar asignado a:
+    - Múltiples grupos (diferentes materias).
+    - Un mismo grupo con varias materias (filas distintas con mismo group_id).
+
+    Un grupo puede tener:
+    - Múltiples profesores (uno por materia / bloque).
+
+    Constraint de unicidad: un profesor no puede tener dos asignaciones
+    con la misma combinación (group_id, subject, section).
+    """
+    __tablename__ = "teacher_group_assignments"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+
+    # FK al usuario con rol teacher (o coordinator que imparte)
+    teacher_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    # FK al grupo/sección
+    group_id: Mapped[int] = mapped_column(
+        ForeignKey("groups.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    # Materia que imparte (ej. "Matemáticas", "Lengua y Literatura")
+    subject: Mapped[str] = mapped_column(String(200), nullable=False)
+    # Jornada: day | night
+    section: Mapped[str] = mapped_column(String(10), nullable=False, default=Section.DAY.value)
+    # FK opcional a período académico (si NULL aplica a todo el año)
+    period_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("periods.id", ondelete="SET NULL"), nullable=True
+    )
+
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
+
+    # Relationships
+    teacher: Mapped["User"] = relationship("User", foreign_keys=[teacher_id])
+    group: Mapped["Group"] = relationship("Group", foreign_keys=[group_id])
+
+    # Constraints
+    __table_args__ = (
+        UniqueConstraint(
+            "teacher_id", "group_id", "subject", "section",
+            name="unique_teacher_group_subject_section",
+        ),
+        CheckConstraint(
+            "section IN ('day', 'night')",
+            name="check_assignment_section",
+        ),
+    )
+
+    def __repr__(self) -> str:
+        return (
+            f"<TeacherGroupAssignment(teacher_id={self.teacher_id}, "
+            f"group_id={self.group_id}, subject={self.subject!r}, "
+            f"section={self.section!r})>"
         )
