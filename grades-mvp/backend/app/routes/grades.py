@@ -7,8 +7,10 @@ from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 
 from app.database import get_db
+from app.models.user import User
 from app.schemas.academic import GradeCreate, GradeUpdate, GradeResponse
 from app.services.academic import GradeService
+from app.dependencies import require_authenticated, require_admin_or_coordinator
 
 router = APIRouter(prefix="/api/grades", tags=["Grades"])
 
@@ -16,7 +18,8 @@ router = APIRouter(prefix="/api/grades", tags=["Grades"])
 @router.post("/", response_model=GradeResponse, status_code=status.HTTP_201_CREATED)
 def create_grade(
     data: GradeCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin_or_coordinator)
 ):
     """
     Crear un nuevo grado/nivel educativo
@@ -36,7 +39,8 @@ def create_grade(
 @router.get("/", response_model=List[GradeResponse])
 def get_grades(
     academic_year_id: Optional[int] = Query(None, description="Filtrar por año académico"),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_authenticated)
 ):
     """
     Obtener todos los grados/niveles
@@ -51,7 +55,8 @@ def get_grades(
 @router.get("/{grade_id}", response_model=GradeResponse)
 def get_grade(
     grade_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_authenticated)
 ):
     """
     Obtener un grado por ID
@@ -72,7 +77,8 @@ def get_grade(
 def update_grade(
     grade_id: int,
     data: GradeUpdate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin_or_coordinator)
 ):
     """
     Actualizar un grado
@@ -87,7 +93,8 @@ def update_grade(
 @router.delete("/{grade_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_grade(
     grade_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin_or_coordinator)
 ):
     """
     Eliminar un grado

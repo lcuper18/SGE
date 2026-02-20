@@ -6,12 +6,17 @@ from pydantic import BaseModel, EmailStr, Field, validator
 import re
 
 
+# Roles válidos del sistema
+VALID_ROLES = {"admin", "coordinator", "teacher", "student", "parent"}
+
+
 class UserRegister(BaseModel):
     """Schema para registro de nuevo usuario"""
     username: str = Field(..., min_length=3, max_length=50)
     email: EmailStr
     password: str = Field(..., min_length=8, max_length=100)
     full_name: str = Field(..., min_length=3, max_length=200)
+    role: str = Field(default="teacher", description="Rol del usuario: admin, coordinator, teacher, student, parent")
     
     @validator('username')
     def validate_username(cls, v):
@@ -19,6 +24,13 @@ class UserRegister(BaseModel):
         if not re.match(r'^[a-zA-Z0-9_-]+$', v):
             raise ValueError('Username solo puede contener letras, números, guiones y guiones bajos')
         return v.lower()
+    
+    @validator('role')
+    def validate_role(cls, v):
+        """Validar que el rol sea válido"""
+        if v not in VALID_ROLES:
+            raise ValueError(f'Rol inválido. Opciones: {", ".join(sorted(VALID_ROLES))}')
+        return v
     
     @validator('password')
     def validate_password(cls, v):
@@ -49,6 +61,7 @@ class TokenData(BaseModel):
     """Datos decodificados del token JWT"""
     user_id: Optional[int] = None
     username: Optional[str] = None
+    role: Optional[str] = None
 
 
 class UserResponse(BaseModel):
@@ -57,6 +70,7 @@ class UserResponse(BaseModel):
     username: str
     email: str
     full_name: str
+    role: str
     is_active: bool
     is_superuser: bool
     created_at: str

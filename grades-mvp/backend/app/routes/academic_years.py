@@ -7,8 +7,10 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from app.database import get_db
+from app.models.user import User
 from app.schemas.academic import AcademicYearCreate, AcademicYearUpdate, AcademicYearResponse
 from app.services.academic import AcademicYearService
+from app.dependencies import require_authenticated, require_admin_or_coordinator
 
 router = APIRouter(prefix="/api/academic-years", tags=["Academic Years"])
 
@@ -16,7 +18,8 @@ router = APIRouter(prefix="/api/academic-years", tags=["Academic Years"])
 @router.post("/", response_model=AcademicYearResponse, status_code=status.HTTP_201_CREATED)
 def create_academic_year(
     data: AcademicYearCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin_or_coordinator)
 ):
     """
     Crear un nuevo año académico
@@ -29,7 +32,10 @@ def create_academic_year(
 
 
 @router.get("/", response_model=List[AcademicYearResponse])
-def get_academic_years(db: Session = Depends(get_db)):
+def get_academic_years(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_authenticated)
+):
     """
     Obtener todos los años académicos
     
@@ -41,7 +47,8 @@ def get_academic_years(db: Session = Depends(get_db)):
 @router.get("/{year_id}", response_model=AcademicYearResponse)
 def get_academic_year(
     year_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_authenticated)
 ):
     """
     Obtener un año académico por ID
@@ -62,7 +69,8 @@ def get_academic_year(
 def update_academic_year(
     year_id: int,
     data: AcademicYearUpdate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin_or_coordinator)
 ):
     """
     Actualizar un año académico
@@ -77,7 +85,8 @@ def update_academic_year(
 @router.delete("/{year_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_academic_year(
     year_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin_or_coordinator)
 ):
     """
     Eliminar un año académico

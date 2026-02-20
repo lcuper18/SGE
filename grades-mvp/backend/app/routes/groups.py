@@ -7,8 +7,10 @@ from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 
 from app.database import get_db
+from app.models.user import User
 from app.schemas.academic import GroupCreate, GroupUpdate, GroupResponse
 from app.services.academic import GroupService
+from app.dependencies import require_authenticated, require_admin_or_coordinator
 
 router = APIRouter(prefix="/api/groups", tags=["Groups"])
 
@@ -16,7 +18,8 @@ router = APIRouter(prefix="/api/groups", tags=["Groups"])
 @router.post("/", response_model=GroupResponse, status_code=status.HTTP_201_CREATED)
 def create_group(
     data: GroupCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin_or_coordinator)
 ):
     """
     Crear un nuevo grupo/sección
@@ -41,7 +44,8 @@ def create_group(
 def get_groups(
     grade_id: Optional[int] = Query(None, description="Filtrar por grado"),
     academic_year_id: Optional[int] = Query(None, description="Filtrar por año académico"),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_authenticated)
 ):
     """
     Obtener todos los grupos
@@ -66,7 +70,8 @@ def get_groups(
 @router.get("/{group_id}", response_model=GroupResponse)
 def get_group(
     group_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_authenticated)
 ):
     """
     Obtener un grupo por ID
@@ -90,7 +95,8 @@ def get_group(
 @router.get("/{group_id}/students/")
 def get_group_students(
     group_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_authenticated)
 ):
     """
     Obtener estudiantes de un grupo
@@ -118,7 +124,8 @@ def get_group_students(
 def update_group(
     group_id: int,
     data: GroupUpdate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin_or_coordinator)
 ):
     """
     Actualizar un grupo
@@ -139,7 +146,8 @@ def update_group(
 @router.delete("/{group_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_group(
     group_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin_or_coordinator)
 ):
     """
     Eliminar un grupo

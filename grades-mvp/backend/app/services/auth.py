@@ -66,13 +66,15 @@ def decode_access_token(token: str) -> Optional[TokenData]:
     """
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id: int = payload.get("sub")
+        subject = payload.get("sub")
         username: str = payload.get("username")
+        role: str = payload.get("role")
         
-        if user_id is None:
+        if subject is None:
             return None
-            
-        return TokenData(user_id=user_id, username=username)
+        
+        user_id = int(subject)  # sub siempre se almacena como string en JWT
+        return TokenData(user_id=user_id, username=username, role=role)
     
     except JWTError:
         return None

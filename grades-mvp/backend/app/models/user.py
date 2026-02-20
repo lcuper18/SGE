@@ -1,9 +1,10 @@
 """
 Modelo de usuario para SGE Grades MVP
-Incluye autenticación con Argon2id
+Incluye autenticación con Argon2id y roles RBAC
 """
 from datetime import datetime
-from sqlalchemy import Boolean, Column, Integer, String, DateTime
+from enum import Enum as PyEnum
+from sqlalchemy import Boolean, Column, Integer, String, DateTime, Enum
 from sqlalchemy.orm import Mapped, mapped_column
 from passlib.context import CryptContext
 from app.database import Base
@@ -19,9 +20,18 @@ pwd_context = CryptContext(
 )
 
 
+class UserRole(str, PyEnum):
+    """Roles del sistema"""
+    ADMIN = "admin"
+    COORDINATOR = "coordinator"
+    TEACHER = "teacher"
+    STUDENT = "student"
+    PARENT = "parent"
+
+
 class User(Base):
     """
-    Usuario/Profesor del sistema
+    Usuario del sistema con roles RBAC
     Autenticación con Argon2id (secure password hashing)
     """
     __tablename__ = "users"
@@ -31,6 +41,12 @@ class User(Base):
     email: Mapped[str] = mapped_column(String(100), unique=True, nullable=False, index=True)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     full_name: Mapped[str] = mapped_column(String(200), nullable=False)
+    role: Mapped[str] = mapped_column(
+        String(20),
+        nullable=False,
+        default=UserRole.TEACHER.value,
+        server_default=UserRole.TEACHER.value
+    )
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     is_superuser: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)

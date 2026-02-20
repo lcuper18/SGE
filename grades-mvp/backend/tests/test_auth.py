@@ -173,15 +173,15 @@ class TestAuthProtectedEndpoints:
         assert data["full_name"] == test_user.full_name
         assert "password" not in data
     
-    def test_get_current_user_without_token(self, client: TestClient):
+    def test_get_current_user_without_token(self, real_client: TestClient):
         """Test que endpoint requiere autenticación"""
-        response = client.get("/api/auth/me")
+        response = real_client.get("/api/auth/me")
         
         assert response.status_code == 401  # Unauthorized sin token
     
-    def test_get_current_user_invalid_token(self, client: TestClient):
+    def test_get_current_user_invalid_token(self, real_client: TestClient):
         """Test con token inválido"""
-        response = client.get(
+        response = real_client.get(
             "/api/auth/me",
             headers={"Authorization": "Bearer invalid_token_here"}
         )

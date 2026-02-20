@@ -5,9 +5,7 @@ from datetime import timedelta
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
-from slowapi import Limiter
 from slowapi.util import get_remote_address
-
 from app.database import get_db
 from app.models.user import User
 from app.schemas.auth import (
@@ -23,17 +21,15 @@ from app.services.auth import (
     get_current_user,
     ACCESS_TOKEN_EXPIRE_MINUTES
 )
+from app.limiter import limiter as app_limiter
 
 
 # Router de autenticación
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
-# Rate limiter
-limiter = Limiter(key_func=get_remote_address)
-
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-@limiter.limit("3/minute")  # Máximo 3 registros por minuto
+@app_limiter.limit("3/minute")  # Máximo 3 registros por minuto
 async def register(
     request: Request,
     user_data: UserRegister, 
@@ -71,8 +67,9 @@ async def register(
         username=user_data.username,
         email=user_data.email,
         full_name=user_data.full_name,
+        role=user_data.role,
         is_active=True,
-        is_superuser=False
+        is_superuser=user_data.role == "admin"
     )
     
     # Hashear contraseña con Argon2id
@@ -88,6 +85,7 @@ async def register(
             username=new_user.username,
             email=new_user.email,
             full_name=new_user.full_name,
+            role=new_user.role,
             is_active=new_user.is_active,
             is_superuser=new_user.is_superuser,
             created_at=new_user.created_at.isoformat()
@@ -102,7 +100,7 @@ async def register(
 
 
 @router.post("/login", response_model=Token)
-@limiter.limit("5/minute")  # Máximo 5 intentos por minuto
+@app_limiter.limit("5/minute")  # Máximo 5 intentos por minuto
 async def login(
     request: Request,
     credentials: UserLogin, 
@@ -131,7 +129,7 @@ async def login(
     # Crear token JWT
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user.id, "username": user.username},
+        data={"sub": str(user.id), "username": user.username, "role": user.role},
         expires_delta=access_token_expires
     )
     
@@ -156,6 +154,7 @@ async def get_current_user_info(
         username=current_user.username,
         email=current_user.email,
         full_name=current_user.full_name,
+        role=current_user.role,
         is_active=current_user.is_active,
         is_superuser=current_user.is_superuser,
         created_at=current_user.created_at.isoformat()
@@ -163,7 +162,7 @@ async def get_current_user_info(
 
 
 @router.post("/change-password", status_code=status.HTTP_200_OK)
-@limiter.limit("3/hour")  # Máximo 3 cambios de contraseña por hora
+@app_limiter.limit("3/hour")  # Máximo 3 cambios de contraseña por hora
 async def change_password(
     request: Request,
     password_data: PasswordChange,

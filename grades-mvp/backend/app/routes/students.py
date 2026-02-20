@@ -7,8 +7,10 @@ from fastapi import APIRouter, Depends, status, Query
 from sqlalchemy.orm import Session
 
 from app.database import get_db
+from app.models.user import User
 from app.schemas.academic import StudentCreate, StudentUpdate, StudentResponse
 from app.services.academic import StudentService
+from app.dependencies import require_authenticated, require_admin_or_coordinator
 
 router = APIRouter(prefix="/api/students", tags=["students"])
 
@@ -16,7 +18,8 @@ router = APIRouter(prefix="/api/students", tags=["students"])
 @router.post("/", response_model=StudentResponse, status_code=status.HTTP_201_CREATED)
 def create_student(
     data: StudentCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin_or_coordinator)
 ):
     """
     Crear nuevo estudiante
@@ -37,7 +40,8 @@ def get_students(
     subgroup_id: Optional[int] = Query(None, description="Filtrar por subgrupo"),
     page: int = Query(1, ge=1, description="Número de página"),
     page_size: int = Query(50, ge=1, le=100, description="Tamaño de página"),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_authenticated)
 ):
     """
     Obtener lista de estudiantes con filtros y paginación
@@ -73,7 +77,8 @@ def get_students(
 @router.get("/{student_id}", response_model=StudentResponse)
 def get_student(
     student_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_authenticated)
 ):
     """Obtener estudiante por ID"""
     student = StudentService.get_by_id(db, student_id)
@@ -90,7 +95,8 @@ def get_student(
 def update_student(
     student_id: int,
     data: StudentUpdate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin_or_coordinator)
 ):
     """
     Actualizar estudiante
@@ -107,7 +113,8 @@ def update_student(
 @router.delete("/{student_id}", response_model=StudentResponse)
 def deactivate_student(
     student_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin_or_coordinator)
 ):
     """
     Soft delete: Marcar estudiante como inactivo

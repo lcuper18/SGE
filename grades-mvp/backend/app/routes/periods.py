@@ -7,8 +7,10 @@ from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 
 from app.database import get_db
+from app.models.user import User
 from app.schemas.academic import PeriodCreate, PeriodUpdate, PeriodResponse
 from app.services.academic import PeriodService
+from app.dependencies import require_authenticated, require_admin_or_coordinator
 
 router = APIRouter(prefix="/api/periods", tags=["Periods"])
 
@@ -16,7 +18,8 @@ router = APIRouter(prefix="/api/periods", tags=["Periods"])
 @router.post("/", response_model=PeriodResponse, status_code=status.HTTP_201_CREATED)
 def create_period(
     data: PeriodCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin_or_coordinator)
 ):
     """
     Crear un nuevo período académico
@@ -37,7 +40,8 @@ def create_period(
 @router.get("/", response_model=List[PeriodResponse])
 def get_periods(
     academic_year_id: Optional[int] = Query(None, description="Filtrar por año académico"),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_authenticated)
 ):
     """
     Obtener todos los períodos académicos
@@ -52,7 +56,8 @@ def get_periods(
 @router.get("/{period_id}", response_model=PeriodResponse)
 def get_period(
     period_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_authenticated)
 ):
     """
     Obtener un período académico por ID
@@ -73,7 +78,8 @@ def get_period(
 def update_period(
     period_id: int,
     data: PeriodUpdate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin_or_coordinator)
 ):
     """
     Actualizar un período académico
@@ -89,7 +95,8 @@ def update_period(
 @router.delete("/{period_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_period(
     period_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin_or_coordinator)
 ):
     """
     Eliminar un período académico
